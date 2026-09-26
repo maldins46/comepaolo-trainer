@@ -1,0 +1,1030 @@
+{
+  "cycle": {
+    "name": "12-week recomposition",
+    "start": "2026-09-06",
+    "weeks": 12,
+    "timezone": "Europe/Rome",
+    "weekStartsOn": "sunday",
+    "gymDays": [
+      "mon",
+      "wed",
+      "fri"
+    ],
+    "runDay": "sun"
+  },
+  "weeks": [
+    {
+      "week": 1,
+      "block": 1,
+      "phase": "Anatomical adaptation",
+      "volume": "Medium",
+      "rir": "3-4",
+      "reps": "12-15",
+      "rest": "60\""
+    },
+    {
+      "week": 2,
+      "block": 1,
+      "phase": "Anatomical adaptation",
+      "volume": "Med-high",
+      "rir": "3",
+      "reps": "12-15",
+      "rest": "60-75\""
+    },
+    {
+      "week": 3,
+      "block": 1,
+      "phase": "Anatomical adaptation",
+      "volume": "High",
+      "rir": "2-3",
+      "reps": "10-12",
+      "rest": "75\""
+    },
+    {
+      "week": 4,
+      "block": 2,
+      "phase": "Hypertrophy",
+      "volume": "High",
+      "rir": "2",
+      "reps": "10-12",
+      "rest": "75\"",
+      "transition": true
+    },
+    {
+      "week": 5,
+      "block": 2,
+      "phase": "Hypertrophy",
+      "volume": "High",
+      "rir": "2",
+      "reps": "8-12",
+      "rest": "75-90\""
+    },
+    {
+      "week": 6,
+      "block": 2,
+      "phase": "Hypertrophy",
+      "volume": "Peak",
+      "rir": "1-2",
+      "reps": "8-12",
+      "rest": "90\""
+    },
+    {
+      "week": 7,
+      "block": 2,
+      "phase": "Hypertrophy",
+      "volume": "High",
+      "rir": "1",
+      "reps": "8-12",
+      "rest": "90\"",
+      "technique": "Drop set on the last set: Butterfly, Lateral Raise, Leg Extension"
+    },
+    {
+      "week": 8,
+      "block": null,
+      "phase": "Deload",
+      "volume": "-50%",
+      "rir": "4-5",
+      "reps": "12",
+      "rest": "60\"",
+      "immutable": true
+    },
+    {
+      "week": 9,
+      "block": 3,
+      "phase": "Intensification",
+      "volume": "Medium",
+      "rir": "1-2",
+      "reps": "6-10",
+      "rest": "120\"",
+      "transition": true
+    },
+    {
+      "week": 10,
+      "block": 3,
+      "phase": "Intensification",
+      "volume": "Medium",
+      "rir": "1",
+      "reps": "6-8",
+      "rest": "120\""
+    },
+    {
+      "week": 11,
+      "block": 3,
+      "phase": "Intensification",
+      "volume": "Med-low",
+      "rir": "0-1 last set",
+      "reps": "5-8",
+      "rest": "120-150\"",
+      "technique": "Rest-pause on the last set: Leg Extension, Lateral Raise"
+    },
+    {
+      "week": 12,
+      "block": null,
+      "phase": "Taper + test",
+      "volume": "-40%",
+      "rir": "3",
+      "reps": "8-10",
+      "rest": "90\"",
+      "immutable": true
+    }
+  ],
+  "running": [
+    {
+      "weeks": [
+        1,
+        2,
+        3
+      ],
+      "target": "7-8 km easy, conversational pace",
+      "distanceKm": [
+        7,
+        8
+      ]
+    },
+    {
+      "weeks": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "target": "10 km progressive: first 7 easy, last 3 faster",
+      "distanceKm": [
+        10,
+        10
+      ]
+    },
+    {
+      "weeks": [
+        8
+      ],
+      "target": "6-7 km very easy",
+      "distanceKm": [
+        6,
+        7
+      ]
+    },
+    {
+      "weeks": [
+        9,
+        10,
+        11
+      ],
+      "target": "10 km, working toward 65 minutes",
+      "distanceKm": [
+        10,
+        10
+      ],
+      "targetMinutes": 65
+    },
+    {
+      "weeks": [
+        12
+      ],
+      "target": "10 km full effort: test",
+      "distanceKm": [
+        10,
+        10
+      ]
+    }
+  ],
+  "runningBaseline": {
+    "beforeBreakMinutes": 60,
+    "onReturnMinutes": 75
+  },
+  "exercises": {
+    "chest_press": {
+      "name": "Chest Press",
+      "hevy": [
+        "Chest Press (Machine)"
+      ],
+      "kind": "machine"
+    },
+    "shoulder_press": {
+      "name": "Shoulder Press",
+      "hevy": [
+        "Seated Shoulder Press (Machine)",
+        "Shoulder Press (Machine)"
+      ],
+      "kind": "machine",
+      "priority": true
+    },
+    "pec_deck": {
+      "name": "Pec Deck",
+      "hevy": [
+        "Butterfly (Pec Deck)"
+      ],
+      "kind": "machine"
+    },
+    "lateral_raise": {
+      "name": "Lateral Raise",
+      "hevy": [
+        "Lateral Raise (Dumbbell)"
+      ],
+      "kind": "isolation",
+      "priority": true,
+      "dumbbell": true
+    },
+    "skullcrusher": {
+      "name": "Skullcrusher",
+      "hevy": [
+        "Skullcrusher (Dumbbell)",
+        "Triceps Extension (Dumbbell)"
+      ],
+      "kind": "isolation",
+      "dumbbell": true
+    },
+    "reverse_fly": {
+      "name": "Rear Delt Reverse Fly",
+      "hevy": [
+        "Chest Supported Reverse Fly",
+        "Incline Rear Delt Fly",
+        "Seated Rear Delt Fly",
+        "Rear Delt Reverse Fly (Dumbbell)",
+        "Rear Delt Reverse Fly (Machine)"
+      ],
+      "kind": "isolation",
+      "priority": true,
+      "dumbbell": true
+    },
+    "bench_db": {
+      "name": "Dumbbell Bench Press",
+      "hevy": [
+        "Bench Press (Dumbbell)"
+      ],
+      "kind": "press",
+      "dumbbell": true
+    },
+    "push_up": {
+      "name": "Push Up",
+      "hevy": [
+        "Push Up"
+      ],
+      "kind": "bodyweight"
+    },
+    "dip": {
+      "name": "Triceps Dip",
+      "hevy": [
+        "Triceps Dip"
+      ],
+      "kind": "bodyweight"
+    },
+    "leg_press": {
+      "name": "Leg Press",
+      "hevy": [
+        "Leg Press (Machine)"
+      ],
+      "kind": "machine"
+    },
+    "leg_extension": {
+      "name": "Leg Extension",
+      "hevy": [
+        "Leg Extension (Machine)"
+      ],
+      "kind": "machine"
+    },
+    "leg_curl": {
+      "name": "Seated Leg Curl",
+      "hevy": [
+        "Seated Leg Curl (Machine)"
+      ],
+      "kind": "machine"
+    },
+    "lunge": {
+      "name": "Dumbbell Lunge",
+      "hevy": [
+        "Lunge (Dumbbell)"
+      ],
+      "kind": "press",
+      "dumbbell": true
+    },
+    "rdl": {
+      "name": "Romanian Deadlift",
+      "hevy": [
+        "Romanian Deadlift (Dumbbell)"
+      ],
+      "kind": "press",
+      "dumbbell": true
+    },
+    "calf_raise": {
+      "name": "Standing Calf Raise",
+      "hevy": [
+        "Standing Calf Raise (Dumbbell)"
+      ],
+      "kind": "isolation",
+      "dumbbell": true
+    },
+    "back_extension": {
+      "name": "Back Extension",
+      "hevy": [
+        "Back Extension (Hyperextension)"
+      ],
+      "kind": "machine"
+    },
+    "vertical_traction": {
+      "name": "Vertical Traction",
+      "hevy": [
+        "Vertical Traction (Machine)",
+        "Lat Pulldown (Machine)"
+      ],
+      "kind": "machine",
+      "note": "Replaces Lat Pulldown from 2026-09-12 (override)"
+    },
+    "seated_row": {
+      "name": "Seated Row",
+      "hevy": [
+        "Seated Row (Machine)"
+      ],
+      "kind": "machine"
+    },
+    "db_row": {
+      "name": "Dumbbell Row",
+      "hevy": [
+        "Bent Over Row (Dumbbell)"
+      ],
+      "kind": "press",
+      "dumbbell": true
+    },
+    "barbell_row": {
+      "name": "Underhand Barbell Row",
+      "hevy": [
+        "Bent Over Row (Barbell)"
+      ],
+      "kind": "press"
+    },
+    "assisted_pullup": {
+      "name": "Assisted Pull Up",
+      "hevy": [
+        "Pull Up (Assisted)",
+        "Assisted Pull Up (Machine)"
+      ],
+      "kind": "assisted"
+    },
+    "bicep_curl": {
+      "name": "Bicep Curl",
+      "hevy": [
+        "Bicep Curl (Dumbbell)"
+      ],
+      "kind": "isolation",
+      "dumbbell": true
+    },
+    "hammer_curl": {
+      "name": "Hammer Curl",
+      "hevy": [
+        "Hammer Curl (Dumbbell)"
+      ],
+      "kind": "isolation",
+      "dumbbell": true
+    },
+    "ab_machine": {
+      "name": "Ab Crunch Machine",
+      "hevy": [
+        "Ab Crunch (Machine)",
+        "Crunch (Machine)"
+      ],
+      "kind": "machine"
+    },
+    "crunch": {
+      "name": "Crunch",
+      "hevy": [
+        "Crunch"
+      ],
+      "kind": "bodyweight"
+    },
+    "knee_raise": {
+      "name": "Hanging Knee Raise",
+      "hevy": [
+        "Hanging Knee Raise"
+      ],
+      "kind": "bodyweight"
+    },
+    "plank": {
+      "name": "Plank",
+      "hevy": [
+        "Plank"
+      ],
+      "kind": "duration"
+    },
+    "side_plank": {
+      "name": "Side Plank",
+      "hevy": [
+        "Side Plank"
+      ],
+      "kind": "duration"
+    },
+    "weighted_plank": {
+      "name": "Weighted Plank",
+      "hevy": [
+        "Weighted Plank"
+      ],
+      "kind": "duration"
+    },
+    "stretching": {
+      "name": "Stretching",
+      "hevy": [
+        "Stretching"
+      ],
+      "kind": "duration",
+      "note": "Added at the end of each session from 2026-09-12 (override)"
+    },
+    "running": {
+      "name": "Running",
+      "hevy": [
+        "Running"
+      ],
+      "kind": "run"
+    }
+  },
+  "_sessionsNote": "sets: one entry per week of the block, e.g. block 1 = [W1, W2, W3]. A single-element array means same scheme every week of the block.",
+  "sessions": {
+    "block1": {
+      "weeks": [
+        1,
+        2,
+        3
+      ],
+      "A": [
+        {
+          "ex": "chest_press",
+          "sets": [
+            "3x12",
+            "4x12",
+            "4x10"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "shoulder_press",
+          "sets": [
+            "3x12",
+            "4x12",
+            "4x10"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "pec_deck",
+          "sets": [
+            "3x12",
+            "3x15",
+            "3x12"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "lateral_raise",
+          "sets": [
+            "3x15",
+            "3x15",
+            "4x12"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "skullcrusher",
+          "sets": [
+            "3x12",
+            "3x15",
+            "3x12"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "reverse_fly",
+          "sets": [
+            "3x15"
+          ],
+          "rest": 45
+        },
+        {
+          "ex": "plank",
+          "sets": [
+            "3x30s",
+            "3x40s",
+            "4x40s"
+          ],
+          "rest": 45
+        }
+      ],
+      "B": [
+        {
+          "ex": "leg_press",
+          "sets": [
+            "3x12",
+            "4x12",
+            "4x10"
+          ],
+          "rest": 90
+        },
+        {
+          "ex": "leg_curl",
+          "sets": [
+            "3x12",
+            "3x15",
+            "4x12"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "leg_extension",
+          "sets": [
+            "3x15",
+            "3x15",
+            "4x12"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "lunge",
+          "sets": [
+            "3x10/side"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "calf_raise",
+          "sets": [
+            "3x15",
+            "4x15",
+            "4x15"
+          ],
+          "rest": 45
+        },
+        {
+          "ex": "back_extension",
+          "sets": [
+            "3x12",
+            "3x15",
+            "3x15"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "crunch",
+          "sets": [
+            "3x15",
+            "3x15",
+            "3x20"
+          ],
+          "rest": 45
+        }
+      ],
+      "C": [
+        {
+          "ex": "vertical_traction",
+          "sets": [
+            "3x12",
+            "4x12",
+            "4x10"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "seated_row",
+          "sets": [
+            "3x12",
+            "4x12",
+            "4x10"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "db_row",
+          "sets": [
+            "3x12/side"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "lateral_raise",
+          "sets": [
+            "3x15"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "reverse_fly",
+          "sets": [
+            "3x15"
+          ],
+          "rest": 45
+        },
+        {
+          "ex": "bicep_curl",
+          "sets": [
+            "3x12",
+            "3x12",
+            "4x10"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "ab_machine",
+          "sets": [
+            "3x15",
+            "3x15",
+            "4x15"
+          ],
+          "rest": 45
+        }
+      ]
+    },
+    "block2": {
+      "weeks": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "A": [
+        {
+          "ex": "bench_db",
+          "sets": [
+            "4x10",
+            "4x10",
+            "4x8",
+            "4x8"
+          ],
+          "rest": 90
+        },
+        {
+          "ex": "shoulder_press",
+          "sets": [
+            "4x10",
+            "4x10",
+            "4x8",
+            "4x8"
+          ],
+          "rest": 90
+        },
+        {
+          "ex": "pec_deck",
+          "sets": [
+            "3x12"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "push_up",
+          "sets": [
+            "3xmax"
+          ],
+          "rest": 60,
+          "cutOrder": 1
+        },
+        {
+          "ex": "lateral_raise",
+          "sets": [
+            "4x12",
+            "4x12",
+            "4x15",
+            "4x12"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "skullcrusher",
+          "sets": [
+            "4x12"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "reverse_fly",
+          "sets": [
+            "3x15"
+          ],
+          "rest": 45
+        },
+        {
+          "ex": "plank",
+          "sets": [
+            "3 rounds + side plank"
+          ],
+          "rest": 45
+        }
+      ],
+      "B": [
+        {
+          "ex": "leg_press",
+          "sets": [
+            "4x10",
+            "4x10",
+            "5x8",
+            "4x8"
+          ],
+          "rest": 100
+        },
+        {
+          "ex": "rdl",
+          "sets": [
+            "4x12",
+            "4x12",
+            "4x10",
+            "4x10"
+          ],
+          "rest": 90
+        },
+        {
+          "ex": "leg_extension",
+          "sets": [
+            "3x12",
+            "3x12",
+            "3x15",
+            "3x12"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "leg_curl",
+          "sets": [
+            "3x12"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "lunge",
+          "sets": [
+            "3x10/side"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "calf_raise",
+          "sets": [
+            "4x15"
+          ],
+          "rest": 45,
+          "cutOrder": 3
+        },
+        {
+          "ex": "ab_machine",
+          "sets": [
+            "3x15"
+          ],
+          "rest": 45
+        },
+        {
+          "ex": "back_extension",
+          "sets": [
+            "2x15"
+          ],
+          "rest": 45
+        }
+      ],
+      "C": [
+        {
+          "ex": "assisted_pullup",
+          "sets": [
+            "4x8-10"
+          ],
+          "rest": 90
+        },
+        {
+          "ex": "seated_row",
+          "sets": [
+            "4x10",
+            "4x10",
+            "4x8",
+            "4x8"
+          ],
+          "rest": 90
+        },
+        {
+          "ex": "barbell_row",
+          "sets": [
+            "3x12"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "lateral_raise",
+          "sets": [
+            "4x12"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "reverse_fly",
+          "sets": [
+            "4x15"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "bicep_curl",
+          "sets": [
+            "3x10"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "hammer_curl",
+          "sets": [
+            "3x12"
+          ],
+          "rest": 60,
+          "cutOrder": 2
+        },
+        {
+          "ex": "knee_raise",
+          "sets": [
+            "3x12"
+          ],
+          "rest": 45
+        }
+      ]
+    },
+    "deload": {
+      "weeks": [
+        8
+      ],
+      "rule": "Same exercises as block 2, half the sets, week 7 loads, RIR 4-5, no drop sets. About 35 minutes."
+    },
+    "block3": {
+      "weeks": [
+        9,
+        10,
+        11
+      ],
+      "A": [
+        {
+          "ex": "bench_db",
+          "sets": [
+            "4x8",
+            "4x6",
+            "5x5"
+          ],
+          "rest": 150
+        },
+        {
+          "ex": "shoulder_press",
+          "sets": [
+            "4x8",
+            "4x6",
+            "4x6"
+          ],
+          "rest": 150
+        },
+        {
+          "ex": "pec_deck",
+          "sets": [
+            "3x10"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "lateral_raise",
+          "sets": [
+            "4x12-15"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "dip",
+          "sets": [
+            "3x8-10"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "reverse_fly",
+          "sets": [
+            "3x15"
+          ],
+          "rest": 45
+        }
+      ],
+      "B": [
+        {
+          "ex": "leg_press",
+          "sets": [
+            "5x8",
+            "5x6",
+            "4x5"
+          ],
+          "rest": 150
+        },
+        {
+          "ex": "rdl",
+          "sets": [
+            "4x8"
+          ],
+          "rest": 120
+        },
+        {
+          "ex": "leg_curl",
+          "sets": [
+            "4x10"
+          ],
+          "rest": 90
+        },
+        {
+          "ex": "leg_extension",
+          "sets": [
+            "3x12"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "calf_raise",
+          "sets": [
+            "4x12"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "weighted_plank",
+          "sets": [
+            "3x40s"
+          ],
+          "rest": 60
+        }
+      ],
+      "C": [
+        {
+          "ex": "assisted_pullup",
+          "sets": [
+            "5x6-8"
+          ],
+          "rest": 150
+        },
+        {
+          "ex": "seated_row",
+          "sets": [
+            "4x8",
+            "4x6",
+            "4x6"
+          ],
+          "rest": 120
+        },
+        {
+          "ex": "db_row",
+          "sets": [
+            "3x8/side"
+          ],
+          "rest": 90
+        },
+        {
+          "ex": "lateral_raise",
+          "sets": [
+            "4x15"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "reverse_fly",
+          "sets": [
+            "3x15"
+          ],
+          "rest": 60
+        },
+        {
+          "ex": "bicep_curl",
+          "sets": [
+            "3x8 + 1x15"
+          ],
+          "rest": 75
+        },
+        {
+          "ex": "knee_raise",
+          "sets": [
+            "3x12"
+          ],
+          "rest": 60
+        }
+      ]
+    },
+    "taper": {
+      "weeks": [
+        12
+      ],
+      "rule": "Block 3 exercises, 3 sets instead of 4-5, load -10%, RIR 3, no intensity techniques. Sunday: 10 km full effort."
+    }
+  },
+  "rules": {
+    "progression": "2x2: every prescribed set at least 2 reps above target, on two consecutive sessions (two consecutive weeks for exercises trained twice a week).",
+    "increments": {
+      "machine": "+2.5-5 kg",
+      "press": "+2.5-5 kg",
+      "isolation": "+1-2 kg",
+      "assisted": "-5 kg assistance"
+    },
+    "caps": [
+      "Max +5 kg per exercise per week",
+      "Max 3 exercises raised per session",
+      "No raise on an exercise skipped last week",
+      "Weeks 8 and 12 are immutable"
+    ],
+    "weightLoss": {
+      "minKgPerWeek": 0.3,
+      "maxKgPerWeek": 0.7,
+      "haltKgPerWeek": 0.9,
+      "targetKgPerWeek": 0.5
+    }
+  },
+  "conventions": {
+    "dumbbellTotalFrom": "2026-09-12",
+    "_dumbbellNote": "Before this date, dumbbell weights were logged per hand. The build step doubles them so the whole history uses the sum-of-both convention."
+  }
+}

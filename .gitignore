@@ -1,0 +1,7 @@
+# Personal data never goes in git. Only dist/ (encrypted) is published, via Actions.
+data/
+dist/
+test/fixtures/local/
+.env
+node_modules/
+.DS_Store
