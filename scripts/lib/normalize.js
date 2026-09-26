@@ -39,6 +39,50 @@ export function parseScheme(s) {
     : { raw: s, sets: +sets, reps: +a, repsMax: b ? +b : undefined, perSide: !!side };
 }
 
+export function rirMidpoint(rirRaw) {
+  // "3-4" -> 3.5, "3" -> 3, "0-1 last set" -> 0.5 (trailing qualifier text is ignored)
+  const m = /^(\d+)(?:-(\d+))?/.exec(rirRaw.trim());
+  if (!m) return null;
+  const lo = +m[1], hi = m[2] != null ? +m[2] : lo;
+  return (lo + hi) / 2;
+}
+
+export function plannedRpeForWeek(pw) {
+  const mid = rirMidpoint(pw.rir);
+  return mid == null ? null : +(10 - mid).toFixed(1);
+}
+
+// Raw scheme strings in plan.json that parseScheme() can't parse into a `sets` count.
+// Small and fixed, so hardcoded rather than a fragile catch-all regex.
+const SET_COUNT_OVERRIDES = { '3xmax': 3, '3x8 + 1x15': 4, '3 rounds + side plank': 3 };
+
+export function setsInScheme(raw) {
+  if (raw in SET_COUNT_OVERRIDES) return SET_COUNT_OVERRIDES[raw];
+  const parsed = parseScheme(raw);
+  if (parsed.sets != null) return parsed.sets;
+  return +(/^(\d+)/.exec(raw.trim())?.[1] ?? 0);
+}
+
+export function plannedSetsForWeek(plan, week) {
+  const planned = plannedSessions(plan, week);
+  if (!planned) return null;
+  if (planned.rule) {
+    if (week === 8) {
+      // Deload: "half the sets" of week 7.
+      const w7 = plannedSetsForWeek(plan, 7);
+      return w7 == null ? null : Math.round(w7 / 2);
+    }
+    if (week === 12) {
+      // Taper: "3 sets" per block-3 exercise (any block-3 week has the same exercise list).
+      const block3 = plannedSessions(plan, 9);
+      return ['A', 'B', 'C'].reduce((n, s) => n + block3[s].length, 0) * 3;
+    }
+    return null;
+  }
+  return ['A', 'B', 'C'].reduce((total, s) =>
+    total + planned[s].reduce((n, row) => n + setsInScheme(row.scheme.raw), 0), 0);
+}
+
 export function blockForWeek(plan, week) {
   return Object.entries(plan.sessions).find(([, b]) => b.weeks.includes(week))?.[0] ?? null;
 }
@@ -244,7 +288,10 @@ export function buildData({ plan, templateIds, hevy, drive, now = new Date() }) 
       range: weekRange(pw.week, plan.cycle.start),
       state: pw.week < currentWeek ? 'done' : pw.week === currentWeek ? 'current' : 'future',
       planned: plannedSessions(plan, pw.week),
+      plannedRpe: plannedRpeForWeek(pw),
+      plannedSets: plannedSetsForWeek(plan, pw.week),
       runTarget: runPlan?.target ?? null,
+      runTargetMinutes: runPlan?.targetMinutes ?? null,
       sessions: Object.fromEntries(['A', 'B', 'C'].map((s) => [s, gym.find((w) => w.session === s)?.id ?? null])),
       gymDone: new Set(gym.map((w) => w.session)).size,
       extraWorkouts: inWeek.filter((w) => w.kind === 'other').map((w) => w.id),

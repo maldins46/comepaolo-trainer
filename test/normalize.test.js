@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { cycleWeek, localDate, parseScheme, plannedSessions, normalizeBodyweight, buildData, parseOverrides } from '../scripts/lib/normalize.js';
+import { cycleWeek, localDate, parseScheme, plannedSessions, normalizeBodyweight, buildData, parseOverrides, rirMidpoint, plannedRpeForWeek, plannedSetsForWeek } from '../scripts/lib/normalize.js';
 import { encryptJson, decryptJson } from '../scripts/lib/crypto.js';
 
 const plan = JSON.parse(readFileSync('plan/plan.json', 'utf8'));
@@ -33,6 +33,23 @@ test('planned sessions pick the right week column', () => {
   assert.equal(w3.A[0].scheme.raw, '4x10'); // chest press W3
   assert.equal(w3.A[5].scheme.raw, '3x15'); // reverse fly, single scheme for all weeks
   assert.ok(plannedSessions(plan, 8).rule);  // deload is a rule
+});
+
+test('plannedRpe: RIR midpoint, including the mixed-text week 11 case', () => {
+  assert.equal(rirMidpoint('3-4'), 3.5);
+  assert.equal(rirMidpoint('3'), 3);
+  assert.equal(rirMidpoint('0-1 last set'), 0.5); // strips trailing qualifier text
+  assert.equal(plannedRpeForWeek(plan.weeks.find((w) => w.week === 1)), 6.5);
+  assert.equal(plannedRpeForWeek(plan.weeks.find((w) => w.week === 8)), 5.5);
+  assert.equal(plannedRpeForWeek(plan.weeks.find((w) => w.week === 11)), 9.5);
+  assert.equal(plannedRpeForWeek(plan.weeks.find((w) => w.week === 12)), 7);
+});
+
+test('plannedSets: table-derived normal week, deload half of week 7, taper 3x block-3 exercises', () => {
+  assert.equal(plannedSetsForWeek(plan, 3), 75);
+  assert.equal(plannedSetsForWeek(plan, 7), 82);
+  assert.equal(plannedSetsForWeek(plan, 8), 41); // round(82/2)
+  assert.equal(plannedSetsForWeek(plan, 12), 57); // 19 block-3 exercises x 3
 });
 
 test('bodyweight: <3 days = no average; status bands', () => {

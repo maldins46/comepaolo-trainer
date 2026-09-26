@@ -93,16 +93,19 @@ generatedAt, hevyFetchedAt
 cycle      { start, weeks, timezone, currentWeek, today, ... }
 rules      progression text, increments, caps, weightLoss thresholds
 exercises  plan key -> { name (IT), hevy[], kind, priority?, dumbbell?, note? }
+runningBaseline { beforeBreakMinutes, onReturnMinutes }
 weeks[12]  { week, block, phase, volume, rir, reps, rest, transition?, immutable?, technique?,
              range{start,end}, state: done|current|future,
              planned (base plan per session A/B/C, or {rule} for weeks 8/12),
-             runTarget, sessions{A,B,C: workoutId|null}, gymDone, extraWorkouts[],
-             run{km,minutes,paceMinPerKm}|null, bodyweight{n,avg,delta,status}|null,
-             feedback[{source,date,text,exercise?}], painFlag,
-             coach (SXX.json, see skill-addition) | null,
+             plannedRpe (10 - RIR midpoint), plannedSets (working sets across A+B+C),
+             runTarget, runTargetMinutes|null, sessions{A,B,C: workoutId|null}, gymDone, extraWorkouts[],
+             run{id,km,minutes,paceMinPerKm}|null, bodyweight{n,avg,delta,status}|null,
+             feedback[{source,date,text,exercise?}] (source mixes two vocabularies:
+             hevy-workout|hevy-exercise from Hevy notes, email|hevy from the coach file), painFlag,
+             coach (SXX.json, written by the hevy-weekly-coach skill each Saturday) | null,
              report{name,date,week,verdict,markdown} | null, overridesActive[] }
 workouts[] { id, title, date, week, kind: gym|run|other, session?, durationMin, description,
-             painFlag, warning?, run?, exercises[{ key, hevyTitle, notes, doubledFromPerHand,
+             painFlag, warning?, run?, exercises[{ key, hevyTitle, templateId, notes, doubledFromPerHand,
              sets[{type,kg,reps,seconds,meters,rpe}], summary{workingSets,topKg,minKg,reps[],
              volumeKg,bestE1rm,droppedWithinSession} }] }
 series     plan key -> [{ date, week, session, workoutId, topKg, minKg, reps[], workingSets,
