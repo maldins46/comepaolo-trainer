@@ -158,6 +158,11 @@ Views, in priority order:
    coach's reason, 2x2 progress. Filterable by exercise and by action. Also lists halts
    (`coach.halt`), nutrition suggestions and overrides applied, each with its week.
    Weeks with no coach file are shown as gaps, not hidden.
+7. **Workouts**: a flat, newest-first log of every logged session (gym, run, other) straight
+   from `workouts[]` — the raw Hevy record, independent of the prescription-vs-actual framing
+   Week N gives the same sessions. Detail page: exercise-by-exercise sets and e1RM (gym), or
+   distance/time/pace (run), plus a computed summary (volume, working sets, duration) — never
+   an invented verdict, since there's no coach judgment at the single-session level.
 
 Design: a training log, not a SaaS template. Numbers are the content: give weights and
 dates a tabular-figure face, keep chrome minimal, one accent colour for "this week", a

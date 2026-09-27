@@ -12,7 +12,12 @@ export function render(container, ctx) {
 
   container.innerHTML = `
     <h1>Running</h1>
-    <p class="muted">10km-equivalent time per week (pace × 10, so weeks that aren't literally 10km still plot on one line — an approximation) vs the return baseline (${onReturnMinutes}'), the block 3 goal, and the pre-break baseline (${beforeBreakMinutes}').</p>
+    <p class="hint">The Sunday run's distance changes across the cycle (7-8km early on, 6-7km during the
+    deload), so times aren't directly comparable week to week. This chart converts every run to a
+    10km-equivalent time (pace × 10) so one line can track progress — an approximation, not a literal
+    10km split. The dashed lines are reference points from the plan: ${onReturnMinutes}' is the pace the
+    cycle started from, ${beforeBreakMinutes}' is where it was before the pre-cycle break, and the solid
+    green segment is the block-3 goal (weeks 9-11 only).</p>
     <div class="chart-wrap tall"><canvas id="run-chart"></canvas></div>
     ${missing.length ? `<p class="muted">No run logged: ${missing.join(', ')}</p>` : ''}
   `;

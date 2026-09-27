@@ -15,7 +15,12 @@ export function render(container, ctx) {
 
   container.innerHTML = `
     <h1>Weight</h1>
-    <p class="muted">Weekly average vs a ${targetKgPerWeek}kg/week target (${minKgPerWeek}–${maxKgPerWeek} healthy band), anchored at the first week with enough data.</p>
+    <p class="hint">Hevy stores one weigh-in per day; the solid line is the weekly average, only shown once
+    at least 3 days were logged that week — a single low or high day never moves it. The faint dots are
+    daily readings, kept faint on purpose: the coach deliberately avoids inviting day-to-day reading, since
+    body weight swings for reasons that have nothing to do with fat loss. The shaded band is the healthy
+    loss range (${minKgPerWeek}–${maxKgPerWeek} kg/week), the dashed line the target (${targetKgPerWeek} kg/week),
+    both anchored to the first week with enough data.</p>
     <div class="chart-wrap tall"><canvas id="weight-chart"></canvas></div>
     ${missing.length ? `<p class="muted">Not enough data: ${missing.join(', ')}</p>` : ''}
     ${suggestion ? `<div class="banner info"><strong>Coach nutrition note (week ${suggestionWeek}):</strong> ${esc(suggestion.suggestion)}</div>` : ''}

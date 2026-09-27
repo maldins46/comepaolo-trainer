@@ -1,6 +1,7 @@
 import { esc, fmtKg } from '../lib/format.js';
 import { makeChart, theme } from '../lib/charts.js';
 import { twoByTwoProgress, heldForWeeks } from '../lib/progression.js';
+import { kindIcon } from '../lib/icons.js';
 
 function sparkline(canvas, series, assisted, accent) {
   const data = series.slice(-8).map((p) => p.topKg);
@@ -21,7 +22,12 @@ export function render(container, ctx) {
   const keys = Object.keys(data.exercises).filter((k) => data.series[k]?.length);
   keys.sort((a, b) => (data.exercises[b].priority ? 1 : 0) - (data.exercises[a].priority ? 1 : 0));
 
-  container.innerHTML = `<h1>Exercises</h1><p class="muted">Priority exercises (shoulders, chest) first.</p><div class="cards" id="cards"></div>`;
+  container.innerHTML = `<h1>Exercises</h1>
+    <p class="hint">Priority exercises — shoulders and chest — come first. The sparkline is the last 8
+    top-set loads; "2×2" shows progress toward the coach's raise rule (two qualifying sessions in a row
+    at the top of the rep range), and "held Nw" counts weeks since the load last went up. Both show
+    nothing when there's no coach decision yet for that exercise, rather than guessing.</p>
+    <div class="cards" id="cards"></div>`;
   const cardsEl = document.getElementById('cards');
   const charts = [];
 
@@ -36,6 +42,7 @@ export function render(container, ctx) {
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
         <div>
           <strong>${esc(meta.name)}</strong>
+          <p class="kind-icon" style="margin:2px 0 0">${kindIcon(meta.kind)} ${esc(meta.kind)}</p>
           <p class="muted" style="margin:2px 0 0;font-size:.85rem">${assisted ? 'Assistance ' + fmtKg(last?.topKg) + ' (lower is better)' : fmtKg(last?.topKg)}</p>
         </div>
         ${meta.priority ? '<span class="badge done">priority</span>' : ''}

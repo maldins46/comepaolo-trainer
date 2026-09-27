@@ -26,6 +26,10 @@ export function render(container, ctx) {
 
   container.innerHTML = `
     <h1>Coach decisions</h1>
+    <p class="hint">Every load change the coach made, most recent first. A decision is made at the end of
+    a week and applies from the next one. The 2×2 rule raises a load once it's cleared the top of the rep
+    range for two sessions in a row, twice; "held" means it hasn't yet. Weeks with no coach file are listed
+    as gaps below, not silently skipped. Filter by exercise or action to narrow the log.</p>
     <div class="filters">
       <select id="filter-ex"><option value="">All exercises</option>${Object.entries(data.exercises).map(([k, m]) => `<option value="${k}">${esc(m.name)}</option>`).join('')}</select>
       <select id="filter-action"><option value="">All actions</option>${ACTIONS.map((a) => `<option value="${a}">${esc(actionLabel(a))}</option>`).join('')}</select>

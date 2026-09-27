@@ -2,6 +2,7 @@ import { esc, fmtKg, fmtDate, actionColorKey } from '../lib/format.js';
 import { weekAxis, chartDefaults, makeChart, theme } from '../lib/charts.js';
 import { verticalLine, decisionMarker } from '../lib/chartAnnotations.js';
 import { twoByTwoProgress, heldForWeeks } from '../lib/progression.js';
+import { kindIcon } from '../lib/icons.js';
 
 function actualSetKgs(workoutsById, key, workoutId) {
   const w = workoutsById.get(workoutId);
@@ -44,17 +45,21 @@ export function render(container, ctx, params) {
   container.innerHTML = `
     <p><a href="#/exercises">← Exercises</a></p>
     <div class="topbar">
-      <div><h1>${esc(meta.name)}</h1><p class="muted" style="margin:0">${esc(meta.kind)}${meta.priority ? ' · priority' : ''}${meta.dumbbell ? ' · dumbbell' : ''}</p></div>
+      <div><h1>${esc(meta.name)}</h1><p class="kind-icon" style="margin:0">${kindIcon(meta.kind)} ${esc(meta.kind)}${meta.priority ? ' · priority' : ''}${meta.dumbbell ? ' · dumbbell' : ''}</p></div>
       <div class="badge-row" style="display:flex;gap:6px">
         ${twoByTwo ? `<span class="badge warn">2×2: ${twoByTwo.qualifyingWeeks}/${twoByTwo.required}</span>` : ''}
         ${held > 0 ? `<span class="badge muted">held ${held}w</span>` : ''}
       </div>
     </div>
-    ${assisted ? '<p class="muted">Assistance load — lower is better. Chart axis is inverted.</p>' : ''}
-    ${meta.dumbbell ? `<p class="muted">Dumbbell loads are the sum of both hands since 2026-09-12; earlier sets were per hand and are doubled (marked ×2 below).</p>` : ''}
+    <p class="hint">Top chart: load per session (or assistance for assisted exercises — lower is better,
+    the axis is inverted); dashed vertical lines mark block transitions (weeks 4, 9), where loads jump
+    10-15% because the rep range drops — that jump is not progress. Small ticks above the line mark coach
+    decisions, placed just after the week they were made in, since a decision applies to the week that
+    follows it, not the one it's based on. Bottom chart: estimated one-rep max trend from the same sessions.
+    ${assisted ? ' Assistance load — lower is better.' : ''}
+    ${meta.dumbbell ? ' Dumbbell loads are the sum of both hands since 2026-09-12; earlier sets were logged per hand and are doubled here (marked ×2 in the table).' : ''}</p>
     <div class="chart-wrap"><canvas id="load-chart"></canvas></div>
     <div class="chart-wrap small"><canvas id="e1rm-chart"></canvas></div>
-    <p class="muted">Dashed vertical lines mark block transitions (weeks 4, 9) — loads jump 10–15% there because the rep range drops; that jump is not progress. Ticks above the chart mark coach decisions, made at the end of a week and applied after it.</p>
     <h2>Sessions</h2>
     <table class="tbl">
       <thead><tr><th>Date</th><th>Session</th><th class="num">Prescribed</th><th class="num">Actual</th><th class="num">Reps</th><th class="num">e1RM</th><th>Coach reason</th></tr></thead>

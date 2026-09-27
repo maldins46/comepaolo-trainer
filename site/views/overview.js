@@ -1,6 +1,7 @@
 import { esc, fmtKg } from '../lib/format.js';
 import { weekAxis, chartDefaults, makeChart, theme } from '../lib/charts.js';
 import { verticalBand } from '../lib/chartAnnotations.js';
+import { icon } from '../lib/icons.js';
 
 function nextAction(week, cycle) {
   const dow = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][new Date(cycle.today + 'T00:00:00Z').getUTCDay()];
@@ -55,12 +56,57 @@ function weekBadgeClass(w) {
   return '';
 }
 
+const STATUS_TILE_CLASS = { ok: 'status-ok', slow: 'status-low', fast: 'status-high', halt: 'status-high' };
+
+function renderHero(data) {
+  const cw = data.cycle.currentWeek;
+  const week = data.weeks[cw - 1];
+  const bw = week?.bodyweight;
+  const action = week ? nextAction(week, data.cycle) : null;
+  const nextLabel = !action ? '—'
+    : action.type === 'run' ? 'Run'
+    : action.type === 'done' ? 'Done'
+    : `Session ${action.session}`;
+  const nextSub = !action ? ''
+    : action.type === 'run' ? (week.runTarget ?? 'Sunday run')
+    : action.type === 'done' ? 'nothing left this week'
+    : (week.coach?.prescription?.[action.session] ?? data.weeks[cw - 2]?.coach?.next?.[action.session]) ? 'load assigned'
+    : 'base plan (no load yet)';
+
+  const alertText = week?.coach?.halt?.halted
+    ? `Halted: ${week.coach.halt.reasons.join('; ')}`
+    : (week?.painFlag || week?.coach?.painFlags?.length) ? 'Pain flagged this week — see details below.' : null;
+
+  return `
+    <p class="hint">Comepaolo Training tracks a 12-week body-recomposition cycle coached by Claude every
+    Saturday, who reads Hevy, decides next week's loads and sends a report. This page shows where the
+    week stands right now; the tabs above dig into weight, exercises, running and the coach's decisions.</p>
+    <p class="muted" style="margin:0">Updated ${new Date(data.generatedAt).toLocaleString('en-GB')}</p>
+    <div class="tiles">
+      <div class="tile"><h3>Phase</h3><span class="big">Week ${cw} of 12</span><p>${esc(week?.phase ?? '—')}</p></div>
+      <div class="tile"><h3>This week</h3><span class="big">${week?.gymDone ?? 0}/3</span><p>${week?.run ? 'run logged' : 'run pending'}</p></div>
+      <div class="tile ${STATUS_TILE_CLASS[bw?.status] ?? ''}"><h3>Weight</h3><span class="big">${bw?.delta != null ? bw.delta.toFixed(2) + ' kg' : '—'}</span><p>${bw?.avg == null ? 'not enough data' : bw.status === 'ok' ? 'on track' : bw.status}</p></div>
+      <div class="tile"><h3>Next up</h3><span class="big">${nextLabel}</span><p>${esc(nextSub)}</p></div>
+      ${alertText ? `<div class="tile bad"><h3>Alert</h3><span class="big">⚠</span><p>${esc(alertText)}</p></div>` : ''}
+    </div>
+    <h2>Effort &amp; volume</h2>
+    <p class="hint">Effort is the planned intensity for each week (RPE, derived from the plan's RIR target —
+    10 means training to failure); volume is the planned number of working sets across all three sessions.
+    Both come from the plan itself, not from what was actually lifted, so they show the intended shape of
+    the cycle. The current week is highlighted; weeks 8 and 12 dip on purpose (deload and taper), not because
+    of a drop in performance.</p>
+    <div class="chart-wrap"><canvas id="effort"></canvas></div>
+    <div class="chart-wrap small"><canvas id="volume"></canvas></div>
+  `;
+}
+
 function renderStrip(data, navigate) {
+  const dot = (on, onIcon, offIcon) => `<span class="icon${on ? ' on' : ''}">${icon(on ? onIcon : offIcon)}</span>`;
   const rows = data.weeks.map((w) => {
     const pain = w.painFlag || w.coach?.painFlags?.length;
     return `<div class="wk ${w.state} ${weekBadgeClass(w)}" data-week="${w.week}" title="${esc(w.phase)}">
       <b>S${w.week}</b>
-      <span class="dots">${['A', 'B', 'C'].map((s) => (w.sessions[s] ? '●' : '○')).join('')}${w.run ? '▲' : '△'}</span><br>
+      <span class="dots">${['A', 'B', 'C'].map((s) => dot(w.sessions[s], 'checkCircle2', 'circleDashed')).join('')}${dot(!!w.run, 'footprints', 'route')}</span>
       <span class="muted">${w.bodyweight?.avg ? w.bodyweight.avg.toFixed(1) + 'kg' : '—'}</span>
       <div class="badge-row">
         ${weekBadgeClass(w) ? `<span class="badge warn">${weekBadgeClass(w)}</span>` : ''}
@@ -84,18 +130,26 @@ export function render(container, ctx) {
   const latestCoachWeek = [...data.weeks].reverse().find((w) => w.coach);
 
   container.innerHTML = `
+    <div class="hero" id="hero"></div>
     ${data.weeks.some((w) => w.coach?.halt?.halted) ? `<div class="banner bad">Halted: ${esc(data.weeks.find((w) => w.coach?.halt?.halted).coach.halt.reasons.join('; '))}</div>` : ''}
     ${latestCoachWeek ? `<div class="banner info"><strong>Latest verdict (week ${latestCoachWeek.week}):</strong> ${esc(latestCoachWeek.coach.verdict ?? '—')}</div>` : ''}
     ${renderWhatsNext(data)}
     <h2>12-week strip</h2>
+    <p class="hint">Each column is one week. The three small icons show whether Monday, Wednesday and
+    Friday's session was logged; the last icon shows Sunday's run. Weeks 8 and 12 are marked — lighter
+    by design, not a drop in performance. Tap a week to see it in full.</p>
+    <div class="legend">
+      <span>${icon('checkCircle2')} session logged</span>
+      <span>${icon('circleDashed')} session pending</span>
+      <span>${icon('footprints')} run logged</span>
+      <span>${icon('route')} run pending</span>
+      <span class="badge warn">deload/taper</span>
+      <span class="badge bad">pain</span>
+    </div>
     <div id="strip"></div>
-    <p class="muted">Week 8 is a deload and week 12 is a taper — both look lighter by design, not a drop in performance.</p>
-    <h2>Effort &amp; volume</h2>
-    <div class="chart-wrap"><canvas id="effort"></canvas></div>
-    <div class="chart-wrap small"><canvas id="volume"></canvas></div>
-    <p class="muted">Effort = planned RPE (10 − RIR midpoint). Volume = planned working sets across A+B+C. Both derived from the plan, not from what was actually lifted.</p>
   `;
 
+  document.getElementById('hero').innerHTML = renderHero(data);
   document.getElementById('strip').replaceWith(renderStrip(data, navigate));
 
   const cw = data.cycle.currentWeek;

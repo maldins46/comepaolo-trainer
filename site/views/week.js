@@ -57,11 +57,17 @@ export function render(container, ctx, params) {
     ${banners.map(([kind, text]) => `<div class="banner ${kind}">${esc(text)}</div>`).join('')}
     ${isBackfill && week.coach?.backfillNotes ? `<div class="card" lang="it">${esc(week.coach.backfillNotes)}</div>` : ''}
     <h2>Sessions</h2>
+    <p class="hint">Every logged set against what the coach prescribed for that session — "Prescribed"
+    comes from last week's coach file, not from Hevy's routine (Hevy overwrites a routine with whatever
+    was actually lifted, so it can't be trusted as the plan).</p>
     ${sessionsHtml}
     <h2>Feedback</h2>
+    <p class="hint">Notes left on Hevy workouts/exercises and anything sent straight to the coach, shown
+    verbatim in the original Italian.</p>
     ${week.feedback.length ? week.feedback.map((f) => `<div class="card" lang="it" style="margin-bottom:8px"><span class="badge muted">${esc(sourceLabel(f.source))}</span> <span class="muted">${fmtDate(f.date)}</span><p style="margin:6px 0 0">${esc(f.text)}</p></div>`).join('') : '<p class="muted">No feedback logged.</p>'}
     <h2>Coach report</h2>
+    <p class="hint">The Saturday report the coach sends after reviewing this week, verbatim in Italian.</p>
     ${week.report ? `<div class="card" lang="it">${renderMarkdown(week.report.markdown)}</div>` : '<p class="muted">No report for this week yet.</p>'}
-    ${week.overridesActive.length ? `<h2>Overrides active</h2>${week.overridesActive.map(overrideRow).join('')}` : ''}
+    ${week.overridesActive.length ? `<h2>Overrides active</h2><p class="hint">Standing exceptions to the plan that applied during this week (a permanent substitution, or a dated one-off), in the athlete's own words.</p>${week.overridesActive.map(overrideRow).join('')}` : ''}
   `;
 }

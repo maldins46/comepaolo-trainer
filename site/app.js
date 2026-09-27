@@ -5,9 +5,12 @@ import * as ExercisesList from './views/exercises.js';
 import * as ExerciseDetail from './views/exerciseDetail.js';
 import * as Week from './views/week.js';
 import * as Decisions from './views/decisions.js';
+import * as Workouts from './views/workouts.js';
+import * as WorkoutDetail from './views/workoutDetail.js';
 
 const NAV = [
   { hash: '#/', label: 'Overview' },
+  { hash: '#/workouts', label: 'Workouts' },
   { hash: '#/exercises', label: 'Exercises' },
   { hash: '#/weight', label: 'Weight' },
   { hash: '#/running', label: 'Running' },
@@ -20,25 +23,53 @@ const ROUTES = [
   { re: /^#\/running$/, view: Running },
   { re: /^#\/exercises$/, view: ExercisesList },
   { re: /^#\/exercises\/([\w:-]+)$/, view: ExerciseDetail, keys: ['key'] },
+  { re: /^#\/workouts$/, view: Workouts },
+  { re: /^#\/workouts\/([\w-]+)$/, view: WorkoutDetail, keys: ['id'] },
   { re: /^#\/week\/(\d+)$/, view: Week, keys: ['n'] },
   { re: /^#\/decisions$/, view: Decisions },
 ];
+
+const THEME_KEY = 'comepaolo-training-theme';
 
 let DATA = null;
 let workoutsById = null;
 let currentCleanup = null;
 
 const SHELL_HTML = `
-  <div class="topbar">
-    <div>
-      <h1 id="week-title"></h1>
-      <p class="muted" id="updated" style="margin:0"></p>
+  <div class="top-strip">
+    <span class="brand">Comepaolo Training</span>
+    <div class="top-actions">
+      <div class="theme-toggle" role="group" aria-label="Theme">
+        <button type="button" class="small" data-theme-btn="">Auto</button>
+        <button type="button" class="small" data-theme-btn="light">Light</button>
+        <button type="button" class="small" data-theme-btn="dark">Dark</button>
+      </div>
+      <button type="button" class="ghost" id="lock-btn">Lock</button>
     </div>
-    <button type="button" class="ghost" id="lock-btn">Lock</button>
   </div>
   <nav class="tabs" id="nav"></nav>
   <div id="view"></div>
 `;
+
+function applyTheme(value) {
+  if (value) document.documentElement.setAttribute('data-theme', value);
+  else document.documentElement.removeAttribute('data-theme');
+  for (const btn of document.querySelectorAll('[data-theme-btn]')) {
+    btn.setAttribute('aria-pressed', String(btn.dataset.themeBtn === value));
+  }
+}
+
+function wireThemeToggle() {
+  const saved = (() => { try { return localStorage.getItem(THEME_KEY) ?? ''; } catch { return ''; } })();
+  applyTheme(saved);
+  for (const btn of document.querySelectorAll('[data-theme-btn]')) {
+    btn.addEventListener('click', () => {
+      const value = btn.dataset.themeBtn;
+      applyTheme(value);
+      try { value ? localStorage.setItem(THEME_KEY, value) : localStorage.removeItem(THEME_KEY); } catch {}
+    });
+  }
+}
 
 export function mountApp(data) {
   DATA = data;
@@ -49,9 +80,7 @@ export function mountApp(data) {
   app.hidden = false;
   app.innerHTML = SHELL_HTML;
 
-  const cw = Math.min(Math.max(data.cycle.currentWeek, 0), 12);
-  document.getElementById('week-title').textContent = `Week ${cw} of 12`;
-  document.getElementById('updated').textContent = `Updated ${new Date(data.generatedAt).toLocaleString('en-GB')}`;
+  wireThemeToggle();
   document.getElementById('lock-btn').addEventListener('click', () => window.lock());
 
   const nav = document.getElementById('nav');
