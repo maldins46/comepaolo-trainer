@@ -101,7 +101,7 @@ function renderHero(data) {
 }
 
 function renderStrip(data, navigate) {
-  const dot = (on, onIcon, offIcon) => `<span class="icon${on ? ' on' : ''}">${icon(on ? onIcon : offIcon)}</span>`;
+  const dot = (on, onIcon, offIcon) => icon(on ? onIcon : offIcon, on ? 'on' : '');
   const rows = data.weeks.map((w) => {
     const pain = w.painFlag || w.coach?.painFlags?.length;
     return `<div class="wk ${w.state} ${weekBadgeClass(w)}" data-week="${w.week}" title="${esc(w.phase)}">
