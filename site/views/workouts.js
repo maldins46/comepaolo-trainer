@@ -33,7 +33,7 @@ export function render(container, ctx) {
   rowsEl.innerHTML = rows.map((w) => `
     <a class="card" href="#/workouts/${w.id}" data-id="${w.id}" style="text-decoration:none;color:inherit;display:block">
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
-        <div>
+        <div style="min-width:0">
           <strong>${esc(w.title)}</strong>
           <p class="muted" style="margin:2px 0 0;font-size:.85rem">${fmtDate(w.date)} · S${w.week} · ${esc(summaryLine(w))}</p>
         </div>

@@ -40,7 +40,7 @@ export function render(container, ctx) {
     const held = heldForWeeks(series);
     return `<a class="card" href="#/exercises/${key}" style="text-decoration:none;color:inherit;display:block" data-key="${key}">
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
-        <div>
+        <div style="min-width:0">
           <strong>${esc(meta.name)}</strong>
           <p class="kind-icon" style="margin:2px 0 0">${kindIcon(meta.kind)} ${esc(meta.kind)}</p>
           <p class="muted" style="margin:2px 0 0;font-size:.85rem">${assisted ? 'Assistance ' + fmtKg(last?.topKg) + ' (lower is better)' : fmtKg(last?.topKg)}</p>

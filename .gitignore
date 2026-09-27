@@ -5,3 +5,4 @@ test/fixtures/local/
 .env
 node_modules/
 .DS_Store
+.playwright-mcp/
