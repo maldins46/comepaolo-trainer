@@ -136,21 +136,34 @@ Views, in priority order:
    prescription from `coach.next` of the latest week file), the latest verdict, and the
    12-week strip: blocks, deload and taper marked, adherence per week (A/B/C/run),
    weekly weight average, pain flags.
-   **Effort curve (agreed with the athlete):** a primary line chart of planned intensity
-   per week (RIR midpoint converted to RPE, 10 = failure) across S1-S12, with the current
-   week highlighted as a band labelled "you are here", past weeks solid, future weeks dashed,
-   deload and taper labelled. Directly beneath it, a smaller secondary chart of planned
-   volume (working sets per week across A+B+C) sharing the same week axis. Two charts,
-   never one chart with two y-axes. Both series are derived from plan.json at build time:
-   add `weeks[].plannedRpe` and `weeks[].plannedSets` to data.json (week 8 = half of week
-   7's sets, week 12 = 3 sets per block-3 exercise) and cover them with a test.
+   **Effort &amp; volume (agreed with the athlete):** one dual-axis chart — bars for planned
+   volume (working sets per week across A+B+C, left axis), a line for planned intensity
+   (RIR midpoint converted to RPE, 10 = failure, right axis, 0-10 fixed), both across S1-S12:
+   two facets of the same week's planned training stimulus, not unrelated metrics, so one
+   chart is fine (see the dual-axis note below). Current week highlighted as a band labelled
+   "you are here"; the RPE line is solid for past weeks, dashed for future ones. Deload and
+   taper weeks dip on both series by design. Both series are derived from plan.json at build
+   time: `weeks[].plannedRpe` and `weeks[].plannedSets` in data.json (week 8 = half of week
+   7's sets, week 12 = 3 sets per block-3 exercise), covered by a test.
+   **Dual-axis rule of thumb:** a combo chart with two y-axes is fine when both series
+   describe the same thing (one week's training stimulus; one run's pace and distance — see
+   Running below) — never when they're two genuinely unrelated metrics that just happen to
+   share an x-axis. When mixing a bar and a line that could land at similar heights on their
+   respective axes, give the bar's axis extra headroom (`suggestedMax` well above its real
+   max) so the two series don't visually merge.
 2. **Weight**: weekly averages vs the 0.5 kg/week target line with the 0.3-0.7 band shaded,
    daily values as faint dots, the coach's nutrition suggestion when present.
 3. **Exercises**: one small card per exercise (priority first) with a load sparkline, the
    current load, 2x2 progress (e.g. "1/2 weeks"), and a "held for N weeks" count.
    Detail page: load and reps per session vs prescription, e1RM trend, block-transition
    markers, doubled-from-per-hand markers, the coach's `reason` per week.
-4. **Running**: 10 km time per week vs 75' (return baseline), 65' (block 3 goal), 60' (pre-break).
+4. **Running**: pace (min/km) and distance (km) per week on one dual-axis chart — bars for
+   pace (left axis), a line for distance (right axis), since both describe the same weekly
+   run. A continuous dashed line marks the pre-break pace (60'/10km = 6.0'/km) across all 12
+   weeks as the cycle-wide goal — not a per-week target invented for weeks the plan only
+   describes in text (distance/effort), never a number. Stat tiles above the chart: latest
+   pace, latest distance, pre-break pace, block-3 target (65'/10km = 6.5'/km, weeks 9-11,
+   shown as a number only, not a chart line, since it doesn't apply to the other 9 weeks).
 5. **Week N**: every session set by set against the prescription, the athlete's
    feedback, the coach's report rendered from Markdown, overrides active that week.
 6. **Coach decisions**: a chronological log across weeks of `coach.decisions`: per

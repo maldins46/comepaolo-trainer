@@ -1,5 +1,5 @@
 import { esc, fractionalWeek } from '../lib/format.js';
-import { weekAxis, chartDefaults, makeChart, theme } from '../lib/charts.js';
+import { weekAxis, chartDefaults, makeChart, theme, axisTitle, chartTitle, unitTooltip } from '../lib/charts.js';
 
 export function render(container, ctx) {
   const { data } = ctx;
@@ -52,8 +52,8 @@ export function render(container, ctx) {
     },
     options: {
       ...chartDefaults(),
-      scales: { x: weekAxis(maxWeek), y: { grid: { color: t.line }, ticks: { color: t.muted } } },
-      plugins: { legend: { labels: { color: t.ink, filter: (item) => item.text !== 'Fast bound' } } },
+      scales: { x: weekAxis(maxWeek, { title: 'Week' }), y: { grid: { color: t.line }, ticks: { color: t.muted }, title: axisTitle('Bodyweight (kg)') } },
+      plugins: { legend: { labels: { color: t.ink, filter: (item) => item.text !== 'Fast bound' } }, ...chartTitle('Bodyweight vs target'), ...unitTooltip('kg') },
     },
   });
 

@@ -1,5 +1,5 @@
 import { esc, fmtKg } from '../lib/format.js';
-import { weekAxis, chartDefaults, makeChart, theme } from '../lib/charts.js';
+import { weekAxis, chartDefaults, makeChart, theme, axisTitle, chartTitle } from '../lib/charts.js';
 import { verticalBand } from '../lib/chartAnnotations.js';
 import { icon } from '../lib/icons.js';
 
@@ -90,13 +90,11 @@ function renderHero(data) {
       ${alertText ? `<div class="tile bad"><h3>Alert</h3><span class="big">⚠</span><p>${esc(alertText)}</p></div>` : ''}
     </div>
     <h2>Effort &amp; volume</h2>
-    <p class="hint">Effort is the planned intensity for each week (RPE, derived from the plan's RIR target —
-    10 means training to failure); volume is the planned number of working sets across all three sessions.
-    Both come from the plan itself, not from what was actually lifted, so they show the intended shape of
-    the cycle. The current week is highlighted; weeks 8 and 12 dip on purpose (deload and taper), not because
-    of a drop in performance.</p>
-    <div class="chart-wrap"><canvas id="effort"></canvas></div>
-    <div class="chart-wrap small"><canvas id="volume"></canvas></div>
+    <p class="hint">Both come from the plan itself, not from what was actually lifted, so they show the
+    intended shape of the cycle: RPE (line) is planned intensity, working sets (bars) is planned volume,
+    for the same week. Weeks 8 and 12 dip on purpose (deload and taper), not because of a drop in
+    performance.</p>
+    <div class="chart-wrap tall"><canvas id="effort-volume"></canvas></div>
   `;
 }
 
@@ -156,39 +154,38 @@ export function render(container, ctx) {
   const weeks = data.weeks.map((w) => w.week);
   const t = theme();
 
-  const effort = makeChart(document.getElementById('effort'), {
-    type: 'line',
+  const effortVolume = makeChart(document.getElementById('effort-volume'), {
+    type: 'bar',
     data: {
       labels: weeks,
-      datasets: [{
-        label: 'Planned RPE',
-        data: data.weeks.map((w) => ({ x: w.week, y: w.plannedRpe })),
-        borderColor: t.accent, backgroundColor: t.accent, pointRadius: 3, tension: 0,
-        segment: { borderDash: (c) => (c.p1DataIndex + 1 > cw ? [6, 4] : undefined) },
-      }],
+      datasets: [
+        {
+          type: 'bar', label: 'Planned sets', data: data.weeks.map((w) => ({ x: w.week, y: w.plannedSets })),
+          backgroundColor: t.accent + '99', yAxisID: 'y', unit: ' sets', order: 0,
+        },
+        {
+          type: 'line', label: 'Planned RPE', data: data.weeks.map((w) => ({ x: w.week, y: w.plannedRpe })),
+          borderColor: t.done, backgroundColor: t.done, pointRadius: 3, tension: 0, yAxisID: 'y1', unit: ' RPE', order: 1,
+          segment: { borderDash: (c) => (c.p1DataIndex + 1 > cw ? [6, 4] : undefined) },
+        },
+      ],
     },
     options: {
       ...chartDefaults(),
-      scales: { x: weekAxis(12), y: { min: 0, max: 10, grid: { color: t.line }, ticks: { color: t.muted } } },
-      plugins: { legend: { display: false } },
+      scales: {
+        x: weekAxis(12, { title: 'Week' }),
+        y: { position: 'left', beginAtZero: true, suggestedMax: 150, grid: { color: t.line }, ticks: { color: t.muted }, title: axisTitle('Working sets') },
+        y1: { position: 'right', min: 0, max: 10, grid: { drawOnChartArea: false }, ticks: { color: t.muted }, title: axisTitle('RPE (0–10, 10 = failure)') },
+      },
+      plugins: {
+        legend: { labels: { color: t.ink } },
+        ...chartTitle('Planned effort & volume by week'),
+        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y}${c.dataset.unit}` } },
+      },
     },
     plugins: [verticalBand({ x: cw, fill: t.accentBg, labelColor: t.accent, label: 'you are here' })],
   });
 
-  const volume = makeChart(document.getElementById('volume'), {
-    type: 'bar',
-    data: {
-      labels: weeks,
-      datasets: [{ label: 'Planned sets', data: data.weeks.map((w) => ({ x: w.week, y: w.plannedSets })), backgroundColor: t.accent + '99' }],
-    },
-    options: {
-      ...chartDefaults(),
-      scales: { x: weekAxis(12), y: { beginAtZero: true } },
-      plugins: { legend: { display: false } },
-    },
-    plugins: [verticalBand({ x: cw, fill: t.accentBg, labelColor: t.accent })],
-  });
-
-  charts.push(effort, volume);
+  charts.push(effortVolume);
   return () => charts.forEach((c) => c.destroy());
 }

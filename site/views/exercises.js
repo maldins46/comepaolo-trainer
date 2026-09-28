@@ -3,15 +3,44 @@ import { makeChart, theme } from '../lib/charts.js';
 import { twoByTwoProgress, heldForWeeks } from '../lib/progression.js';
 import { kindIcon } from '../lib/icons.js';
 
-function sparkline(canvas, series, assisted, accent) {
-  const data = series.slice(-8).map((p) => p.topKg);
+function prescribedTop(p) {
+  if (!p.prescribed) return null;
+  return p.prescribed.kgPerSet ? Math.max(...p.prescribed.kgPerSet) : p.prescribed.kg ?? null;
+}
+
+function sparkline(canvas, series, assisted, accent, muted) {
+  // x = position within the window, not the week number: some exercises run twice in the
+  // same week (sessions A and C), which would otherwise collide on one x and draw as a
+  // near-vertical stroke instead of a trend. The tooltip still looks up the real week per point.
+  const points = series.slice(-8);
+  const weeks = points.map((p) => p.week);
+  const actual = points.map((p, i) => ({ x: i, y: p.topKg }));
+  const prescribed = points.map((p, i) => ({ x: i, y: prescribedTop(p) }));
   return makeChart(canvas, {
     type: 'line',
-    data: { labels: data.map((_, i) => i), datasets: [{ data, borderColor: accent, backgroundColor: accent, pointRadius: 0, borderWidth: 2, tension: 0.25 }] },
+    data: {
+      datasets: [
+        { label: 'Target', data: prescribed, borderColor: muted, borderDash: [3, 3], borderWidth: 1, pointRadius: 0, spanGaps: true },
+        { label: 'Actual', data: actual, borderColor: accent, backgroundColor: accent, pointRadius: 0, borderWidth: 2, tension: 0.25 },
+      ],
+    },
     options: {
       responsive: true, maintainAspectRatio: false, animation: false,
-      scales: { x: { display: false }, y: { display: false, reverse: assisted } },
-      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { type: 'linear', display: false },
+        y: { display: true, reverse: assisted, ticks: { display: false }, border: { display: false }, grid: { color: muted + '33' } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          filter: (item) => item.parsed.y != null,
+          callbacks: {
+            title: (items) => 'S' + weeks[items[0].dataIndex],
+            label: (item) => `${item.dataset.label}: ${item.parsed.y}kg`,
+          },
+        },
+      },
     },
   });
 }
@@ -57,7 +86,7 @@ export function render(container, ctx) {
 
   for (const key of keys) {
     const canvas = cardsEl.querySelector(`canvas[data-spark="${key}"]`);
-    if (canvas) charts.push(sparkline(canvas, data.series[key], data.exercises[key].kind === 'assisted', t.accent));
+    if (canvas) charts.push(sparkline(canvas, data.series[key], data.exercises[key].kind === 'assisted', t.accent, t.muted));
   }
 
   cardsEl.addEventListener('click', (e) => {

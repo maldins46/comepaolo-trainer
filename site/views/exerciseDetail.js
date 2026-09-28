@@ -1,5 +1,5 @@
 import { esc, fmtKg, fmtDate, actionColorKey } from '../lib/format.js';
-import { weekAxis, chartDefaults, makeChart, theme } from '../lib/charts.js';
+import { weekAxis, chartDefaults, makeChart, theme, axisTitle, chartTitle, swatchDot, swatchDash } from '../lib/charts.js';
 import { verticalLine, decisionMarker } from '../lib/chartAnnotations.js';
 import { twoByTwoProgress, heldForWeeks } from '../lib/progression.js';
 import { kindIcon } from '../lib/icons.js';
@@ -51,14 +51,19 @@ export function render(container, ctx, params) {
         ${held > 0 ? `<span class="badge muted">held ${held}w</span>` : ''}
       </div>
     </div>
-    <p class="hint">Top chart: load per session (or assistance for assisted exercises — lower is better,
-    the axis is inverted); dashed vertical lines mark block transitions (weeks 4, 9), where loads jump
-    10-15% because the rep range drops — that jump is not progress. Small ticks above the line mark coach
-    decisions, placed just after the week they were made in, since a decision applies to the week that
-    follows it, not the one it's based on. Bottom chart: estimated one-rep max trend from the same sessions.
-    ${assisted ? ' Assistance load — lower is better.' : ''}
-    ${meta.dumbbell ? ' Dumbbell loads are the sum of both hands since 2026-09-12; earlier sets were logged per hand and are doubled here (marked ×2 in the table).' : ''}</p>
+    <p class="hint">Coach decisions (ticks above the line) are placed just after the week they were made
+    in, since a decision applies to the week that follows it, not the one it's based on.
+    ${meta.dumbbell ? ' Dumbbell loads are the sum of both hands since 2026-09-12; earlier sets were logged per hand and are doubled here (marked ×2 in the table and ' + swatchDot(t.warn) + ' on the chart).' : ''}</p>
     <div class="chart-wrap"><canvas id="load-chart"></canvas></div>
+    <div class="legend">
+      <span>${swatchDot(t.accent)} logged ${assisted ? 'assistance' : 'load'}</span>
+      ${meta.dumbbell ? `<span>${swatchDot(t.warn)} doubled (per-hand, pre-2026-09-12)</span>` : ''}
+      <span>${swatchDash(t.warn)} block transition</span>
+      <span>${swatchDot(t.done)} raised</span>
+      <span>${swatchDot(t.bad)} lowered / pain</span>
+      <span>${swatchDot(t.warn)} reset / transition</span>
+      <span>${swatchDot(t.muted)} held / skipped</span>
+    </div>
     <div class="chart-wrap small"><canvas id="e1rm-chart"></canvas></div>
     <h2>Sessions</h2>
     <table class="tbl">
@@ -82,12 +87,12 @@ export function render(container, ctx, params) {
     },
     options: {
       ...chartDefaults(),
-      scales: { x: weekAxis(data.cycle.weeks), y: { reverse: assisted, grid: { color: t.line }, ticks: { color: t.muted } } },
-      plugins: { legend: { display: false } },
+      scales: { x: weekAxis(data.cycle.weeks, { title: 'Week' }), y: { reverse: assisted, grid: { color: t.line }, ticks: { color: t.muted }, title: axisTitle(assisted ? 'Assistance (kg) — lower is better' : 'Load (kg)') } },
+      plugins: { legend: { display: false }, ...chartTitle(assisted ? 'Assistance per session' : 'Top load per session') },
     },
     plugins: [
-      verticalLine({ x: 4, color: t.warn }),
-      verticalLine({ x: 9, color: t.warn }),
+      verticalLine({ x: 4, color: t.warn, label: 'Block 2' }),
+      verticalLine({ x: 9, color: t.warn, label: 'Block 3' }),
       decisionMarker({ points: decisions, colorFor: (action) => t[actionColorKey(action)] }),
     ],
   });
@@ -97,8 +102,8 @@ export function render(container, ctx, params) {
     data: { datasets: [{ label: 'e1RM', data: series.map((p) => ({ x: p.week, y: p.bestE1rm })), borderColor: t.done, backgroundColor: t.done, pointRadius: 2, spanGaps: true }] },
     options: {
       ...chartDefaults(),
-      scales: { x: weekAxis(data.cycle.weeks), y: { grid: { color: t.line }, ticks: { color: t.muted } } },
-      plugins: { legend: { display: false } },
+      scales: { x: weekAxis(data.cycle.weeks, { title: 'Week' }), y: { grid: { color: t.line }, ticks: { color: t.muted }, title: axisTitle('Estimated 1RM (kg)') } },
+      plugins: { legend: { display: false }, ...chartTitle('Estimated one-rep max') },
     },
     plugins: [verticalLine({ x: 4, color: t.warn }), verticalLine({ x: 9, color: t.warn })],
   });
