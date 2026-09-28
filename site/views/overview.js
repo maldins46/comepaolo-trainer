@@ -29,25 +29,25 @@ function renderWhatsNext(data) {
   const action = nextAction(week, data.cycle);
 
   if (action.type === 'done') {
-    return `<div class="card"><h3>What's next</h3><p class="muted">All sessions logged for this week. Nice.</p></div>`;
+    return `<h2>What's next</h2><p class="muted">All sessions logged for this week. Nice.</p>`;
   }
   if (action.type === 'run') {
-    return `<div class="card"><h3>What's next</h3><p>Sunday run — target: ${esc(week.runTarget ?? '—')}</p></div>`;
+    return `<h2>What's next</h2><p>Sunday run — target: ${esc(week.runTarget ?? '—')}</p>`;
   }
 
   const prescription = week.coach?.prescription ?? prev?.coach?.next ?? null;
   const rows = prescription?.[action.session];
   if (rows) {
-    return `<div class="card"><h3>What's next: session ${action.session}</h3>${renderPrescriptionRows(rows, data.exercises)}</div>`;
+    return `<h2>What's next: session ${action.session}</h2>${renderPrescriptionRows(rows, data.exercises)}`;
   }
   if (week.planned?.rule) {
-    return `<div class="card"><h3>What's next: session ${action.session}</h3><p>${esc(week.planned.rule)}</p>
-      <p class="muted"><a href="#/week/${week.week}">Full week ${week.week} plan →</a></p></div>`;
+    return `<h2>What's next: session ${action.session}</h2><p>${esc(week.planned.rule)}</p>
+      <p class="muted"><a href="#/week/${week.week}">Full week ${week.week} plan →</a></p>`;
   }
   const base = week.planned?.[action.session];
-  return `<div class="card"><h3>What's next: session ${action.session}</h3>
+  return `<h2>What's next: session ${action.session}</h2>
     <p class="muted">No coach-assigned load yet — base plan shown.</p>
-    ${renderPrescriptionRows(base?.map((r) => ({ ex: r.ex, sets: r.scheme.sets ?? '?', reps: r.scheme.reps, seconds: r.scheme.seconds, repsMax: r.scheme.repsMax })) ?? [], data.exercises)}</div>`;
+    ${renderPrescriptionRows(base?.map((r) => ({ ex: r.ex, sets: r.scheme.sets ?? '?', reps: r.scheme.reps, seconds: r.scheme.seconds, repsMax: r.scheme.repsMax })) ?? [], data.exercises)}`;
 }
 
 function weekBadgeClass(w) {
@@ -58,7 +58,7 @@ function weekBadgeClass(w) {
 
 const STATUS_TILE_CLASS = { ok: 'status-ok', slow: 'status-low', fast: 'status-high', halt: 'status-high' };
 
-function renderHero(data) {
+function renderHero(data, latestCoachWeek) {
   const cw = data.cycle.currentWeek;
   const week = data.weeks[cw - 1];
   const bw = week?.bodyweight;
@@ -89,6 +89,7 @@ function renderHero(data) {
       <div class="tile"><h3>Next up</h3><span class="big">${nextLabel}</span><p>${esc(nextSub)}</p></div>
       ${alertText ? `<div class="tile bad"><h3>Alert</h3><span class="big">⚠</span><p>${esc(alertText)}</p></div>` : ''}
     </div>
+    ${latestCoachWeek ? `<p style="margin:8px 0 0"><strong>Latest verdict (week ${latestCoachWeek.week}):</strong> ${esc(latestCoachWeek.coach.verdict ?? '—')}</p>` : ''}
     <h2>Effort &amp; volume</h2>
     <p class="hint">Both come from the plan itself, not from what was actually lifted, so they show the
     intended shape of the cycle: RPE (line) is planned intensity, working sets (bars) is planned volume,
@@ -128,10 +129,8 @@ export function render(container, ctx) {
   const latestCoachWeek = [...data.weeks].reverse().find((w) => w.coach);
 
   container.innerHTML = `
-    <div class="hero" id="hero"></div>
-    ${data.weeks.some((w) => w.coach?.halt?.halted) ? `<div class="banner bad">Halted: ${esc(data.weeks.find((w) => w.coach?.halt?.halted).coach.halt.reasons.join('; '))}</div>` : ''}
-    ${latestCoachWeek ? `<div class="banner info"><strong>Latest verdict (week ${latestCoachWeek.week}):</strong> ${esc(latestCoachWeek.coach.verdict ?? '—')}</div>` : ''}
-    ${renderWhatsNext(data)}
+    <h1>Overview</h1>
+    ${renderHero(data, latestCoachWeek)}
     <h2>12-week strip</h2>
     <p class="hint">Each column is one week. The three small icons show whether Monday, Wednesday and
     Friday's session was logged; the last icon shows Sunday's run. Weeks 8 and 12 are marked — lighter
@@ -145,9 +144,10 @@ export function render(container, ctx) {
       <span class="badge bad">pain</span>
     </div>
     <div id="strip"></div>
+    ${data.weeks.some((w) => w.coach?.halt?.halted) ? `<div class="banner bad">Halted: ${esc(data.weeks.find((w) => w.coach?.halt?.halted).coach.halt.reasons.join('; '))}</div>` : ''}
+    ${renderWhatsNext(data)}
   `;
 
-  document.getElementById('hero').innerHTML = renderHero(data);
   document.getElementById('strip').replaceWith(renderStrip(data, navigate));
 
   const cw = data.cycle.currentWeek;

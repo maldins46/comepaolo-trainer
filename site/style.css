@@ -94,8 +94,6 @@ nav.tabs a {
 }
 nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
 
-/* ---- hero (Overview) ---- */
-.hero { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin: 16px 0 24px; }
 .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 16px 0 4px; }
 .tile { background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; }
 .tile.bad { background: var(--bad-bg); }
@@ -152,7 +150,7 @@ nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--
 table.tbl { width: 100%; border-collapse: collapse; font-size: .88rem; }
 table.tbl th, table.tbl td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
 table.tbl th { color: var(--muted); font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .02em; }
-table.tbl td.num { text-align: right; }
+table.tbl th.num, table.tbl td.num { text-align: right; }
 
 .filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
 

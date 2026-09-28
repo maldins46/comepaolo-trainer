@@ -1,7 +1,20 @@
 import { weekAxis, chartDefaults, makeChart, theme, axisTitle, chartTitle } from '../lib/charts.js';
+import { fmtDate } from '../lib/format.js';
+
+function runRow(r) {
+  return `
+    <a class="card" href="#/workouts/${r.id}" data-id="${r.id}" style="text-decoration:none;color:inherit;display:block">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
+        <div style="min-width:0">
+          <strong>S${r.week} run</strong>
+          <p class="muted" style="margin:2px 0 0;font-size:.85rem">${fmtDate(r.date)} · ${r.km}km · ${r.minutes}min · ${r.paceMinPerKm}/km</p>
+        </div>
+      </div>
+    </a>`;
+}
 
 export function render(container, ctx) {
-  const { data } = ctx;
+  const { data, navigate } = ctx;
   const maxWeek = data.cycle.weeks;
   const { beforeBreakMinutes, onReturnMinutes } = data.runningBaseline;
   const t = theme();
@@ -27,7 +40,20 @@ export function render(container, ctx) {
     </div>
     <div class="chart-wrap tall"><canvas id="run-chart"></canvas></div>
     ${missing.length ? `<p class="muted">No run logged: ${missing.join(', ')}</p>` : ''}
+    <h2>Logged runs</h2>
+    <div id="runs"></div>
   `;
+
+  const runsEl = document.createElement('div');
+  runsEl.className = 'cards';
+  runsEl.id = 'runs';
+  const runs = [...data.runs].sort((a, b) => b.date.localeCompare(a.date));
+  runsEl.innerHTML = runs.length ? runs.map(runRow).join('') : '<p class="muted">No runs logged yet.</p>';
+  document.getElementById('runs').replaceWith(runsEl);
+  runsEl.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-id]');
+    if (a) { e.preventDefault(); navigate(`#/workouts/${a.dataset.id}`); }
+  });
 
   const actual = data.weeks.map((w) => ({ x: w.week, y: w.run ? +w.run.paceMinPerKm.toFixed(2) : null }));
   const distance = data.weeks.map((w) => ({ x: w.week, y: w.run?.km ?? null }));
