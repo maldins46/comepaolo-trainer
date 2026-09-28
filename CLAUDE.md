@@ -27,7 +27,10 @@ itself; the whole pipeline should stay readable in one sitting.
 | `scripts/lib/drive.js` | Drive read-only client, service-account JWT signed with `node:crypto`. |
 | `scripts/lib/normalize.js` | **All** data shaping. Pure functions, unit-tested. |
 | `scripts/lib/crypto.js` | gzip + AES-256-GCM, PBKDF2-SHA256 600k, fixed per-repo salt. |
-| `site/index.html` | Password gate + decrypt + a placeholder view. **Phase 3 replaces the placeholder.** |
+| `site/index.html` | Password gate + decrypt, then hands off to `site/app.js` (the Phase 3 dashboard). |
+| `site/manifest.json` | PWA manifest: install metadata, `any` + `maskable` icons. |
+| `site/sw.js` | Service worker: precaches the app shell, stale-while-revalidate for same-origin requests (same pattern as `comepaolo-mealprep`'s `sw.js`). |
+| `site/icons/` | App icon set generated from one 1024 source (`icon-source.jpeg`) via `sips`: `icon-master-full.png` (plain, edge-to-edge) feeds `icon-192/512`, `apple-touch-icon`, `favicon-16/32`; `icon-master.png` (mascot shrunk onto a solid `--accent`-filled square, for OS icon masks) feeds `icon-maskable-192/512`. Regenerate downstream sizes from the masters if the art changes. |
 | `skill-addition/` | Section to add to the coach skill so it writes `SXX.json` week files to Drive. |
 
 ## Commands

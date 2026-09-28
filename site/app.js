@@ -57,6 +57,8 @@ function applyTheme(value) {
   for (const btn of document.querySelectorAll('[data-theme-btn]')) {
     btn.setAttribute('aria-pressed', String(btn.dataset.themeBtn === value));
   }
+  const dark = value === 'dark' || (value !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.getElementById('theme-color-meta')?.setAttribute('content', dark ? '#10151c' : '#eef2f6');
 }
 
 function wireThemeToggle() {
