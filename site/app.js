@@ -7,6 +7,7 @@ import * as Week from './views/week.js';
 import * as Decisions from './views/decisions.js';
 import * as Workouts from './views/workouts.js';
 import * as WorkoutDetail from './views/workoutDetail.js';
+import { icon } from './lib/icons.js';
 
 const NAV = [
   { hash: '#/', label: 'Overview' },
@@ -44,7 +45,7 @@ const SHELL_HTML = `
         <button type="button" class="small" data-theme-btn="light">Light</button>
         <button type="button" class="small" data-theme-btn="dark">Dark</button>
       </div>
-      <button type="button" class="ghost" id="lock-btn">Lock</button>
+      <button type="button" class="ghost small" id="lock-btn">${icon('lock')} Lock</button>
     </div>
   </div>
   <nav class="tabs" id="nav"></nav>
