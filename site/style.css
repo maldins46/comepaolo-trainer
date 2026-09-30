@@ -83,16 +83,26 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .theme-toggle { display: inline-flex; gap: 2px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 2px; }
 .theme-toggle button { background: none; color: var(--muted); border-radius: 6px; padding: 5px 9px; font-size: .78rem; }
 .theme-toggle button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
-nav.tabs {
-  position: sticky; top: 0; z-index: 5; display: flex; gap: 4px; overflow-x: auto; white-space: nowrap;
+.tabs-wrap {
+  position: sticky; top: 0; z-index: 5; display: flex; align-items: stretch;
   background: var(--bg); padding: 10px 0; margin-bottom: 8px; border-bottom: 2px solid var(--line);
-  -webkit-overflow-scrolling: touch;
 }
+nav.tabs {
+  display: flex; gap: 4px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+nav.tabs::-webkit-scrollbar { display: none; }
 nav.tabs a {
   color: var(--muted); text-decoration: none; padding: 8px 13px; border-radius: 0; font: 600 .95rem var(--display);
   border-bottom: 2px solid transparent; margin-bottom: -10px;
 }
 nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab-arrow {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  background: transparent; color: var(--muted); border: 0; padding: 0 6px; cursor: pointer;
+}
+.tab-arrow:hover { color: var(--ink); }
+.tab-arrow[hidden] { display: none; }
 
 .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 16px 0 4px; }
 .tile { background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; }

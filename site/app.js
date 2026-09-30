@@ -48,7 +48,11 @@ const SHELL_HTML = `
       <button type="button" class="ghost small" id="lock-btn">${icon('lock')} Lock</button>
     </div>
   </div>
-  <nav class="tabs" id="nav"></nav>
+  <div class="tabs-wrap">
+    <button type="button" class="tab-arrow" id="tabs-prev" aria-label="Scroll tabs left" hidden>${icon('chevronLeft')}</button>
+    <nav class="tabs" id="nav"></nav>
+    <button type="button" class="tab-arrow" id="tabs-next" aria-label="Scroll tabs right" hidden>${icon('chevronRight')}</button>
+  </div>
   <div id="view"></div>
 `;
 
@@ -60,6 +64,22 @@ function applyTheme(value) {
   }
   const dark = value === 'dark' || (value !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
   document.getElementById('theme-color-meta')?.setAttribute('content', dark ? '#10151c' : '#eef2f6');
+}
+
+function wireTabScroll() {
+  const nav = document.getElementById('nav');
+  const prev = document.getElementById('tabs-prev');
+  const next = document.getElementById('tabs-next');
+  const update = () => {
+    const overflow = nav.scrollWidth > nav.clientWidth + 1;
+    prev.hidden = !overflow || nav.scrollLeft <= 0;
+    next.hidden = !overflow || nav.scrollLeft >= nav.scrollWidth - nav.clientWidth - 1;
+  };
+  prev.addEventListener('click', () => nav.scrollBy({ left: -140, behavior: 'smooth' }));
+  next.addEventListener('click', () => nav.scrollBy({ left: 140, behavior: 'smooth' }));
+  nav.addEventListener('scroll', update);
+  window.addEventListener('resize', update);
+  update();
 }
 
 function wireThemeToggle() {
@@ -88,6 +108,7 @@ export function mountApp(data) {
 
   const nav = document.getElementById('nav');
   nav.innerHTML = NAV.map((n) => `<a href="${n.hash}">${n.label}</a>`).join('');
+  wireTabScroll();
 
   window.addEventListener('hashchange', renderRoute);
   if (!location.hash) location.hash = '#/';
