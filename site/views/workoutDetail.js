@@ -22,7 +22,7 @@ export function render(container, ctx, params) {
   const w = workoutsById.get(params.id);
 
   if (!w) {
-    container.innerHTML = `<p><a href="#/workouts">← Workouts</a></p><p class="muted">No such workout.</p>`;
+    container.innerHTML = `<p class="muted">No such workout.</p>`;
     return;
   }
 
@@ -33,7 +33,6 @@ export function render(container, ctx, params) {
   const kindLabel = w.kind === 'run' ? 'Run' : w.kind === 'gym' ? `Session ${w.session}` : 'Other';
 
   container.innerHTML = `
-    <p><a href="#/workouts">← Workouts</a> · <a href="#/week/${w.week}">Week ${w.week} →</a></p>
     <h1>${esc(w.title)}</h1>
     <p class="muted" style="margin:0">${fmtDate(w.date)} · ${kindLabel} · ${w.durationMin}min</p>
     ${banners.map(([kind, text]) => `<div class="banner ${kind}">${esc(text)}</div>`).join('')}

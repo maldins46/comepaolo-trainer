@@ -51,7 +51,6 @@ export function render(container, ctx, params) {
       `).join('');
 
   container.innerHTML = `
-    <p><a href="#/">← Overview</a></p>
     <h1>Week ${week.week} — ${esc(week.phase)}</h1>
     <p class="muted" style="margin:0">${week.range.start} – ${week.range.end}</p>
     ${banners.map(([kind, text]) => `<div class="banner ${kind}">${esc(text)}</div>`).join('')}

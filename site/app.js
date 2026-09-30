@@ -7,6 +7,7 @@ import * as Week from './views/week.js';
 import * as Decisions from './views/decisions.js';
 import * as Workouts from './views/workouts.js';
 import * as WorkoutDetail from './views/workoutDetail.js';
+import * as PlannedSession from './views/plannedSession.js';
 import { icon } from './lib/icons.js';
 
 const NAV = [
@@ -21,12 +22,33 @@ const NAV = [
 const ROUTES = [
   { re: /^#\/$/, view: Overview },
   { re: /^#\/workouts$/, view: Workouts },
-  { re: /^#\/workouts\/([\w-]+)$/, view: WorkoutDetail, keys: ['id'] },
+  {
+    re: /^#\/workouts\/([\w-]+)$/, view: WorkoutDetail, keys: ['id'],
+    header: (ctx, p) => {
+      const w = ctx.workoutsById.get(p.id);
+      return {
+        title: w?.kind === 'run' ? 'Run' : 'Workout',
+        fallback: '#/workouts',
+        action: w?.week ? { label: `Week ${w.week}`, href: `#/week/${w.week}` } : null,
+      };
+    },
+  },
+  {
+    re: /^#\/plan\/(\d+)\/(A|B|C|run)$/, view: PlannedSession, keys: ['n', 's'],
+    header: (ctx, p) => {
+      const valid = !!ctx.data.weeks[+p.n - 1];
+      return {
+        title: p.s === 'run' ? 'Planned run' : 'Planned session',
+        fallback: '#/',
+        action: valid ? { label: `Week ${p.n}`, href: `#/week/${p.n}` } : null,
+      };
+    },
+  },
   { re: /^#\/running$/, view: Running },
   { re: /^#\/exercises$/, view: ExercisesList },
-  { re: /^#\/exercises\/([\w:-]+)$/, view: ExerciseDetail, keys: ['key'] },
+  { re: /^#\/exercises\/([\w:-]+)$/, view: ExerciseDetail, keys: ['key'], header: () => ({ title: 'Exercise', fallback: '#/exercises' }) },
   { re: /^#\/weight$/, view: Weight },
-  { re: /^#\/week\/(\d+)$/, view: Week, keys: ['n'] },
+  { re: /^#\/week\/(\d+)$/, view: Week, keys: ['n'], header: () => ({ title: 'Week', fixedBack: '#/' }) },
   { re: /^#\/decisions$/, view: Decisions },
 ];
 
@@ -35,6 +57,9 @@ const THEME_KEY = 'comepaolo-training-theme';
 let DATA = null;
 let workoutsById = null;
 let currentCleanup = null;
+let updateTabArrows = () => {};
+let curIdx = 0;      // position of the current history entry within this app session
+let backTarget = null;
 
 const SHELL_HTML = `
   <div class="top-strip">
@@ -48,10 +73,15 @@ const SHELL_HTML = `
       <button type="button" class="ghost small" id="lock-btn" aria-label="Lock" title="Lock">${icon('lock')}<span class="lbl">Lock</span></button>
     </div>
   </div>
-  <div class="tabs-wrap">
+  <div class="tabs-wrap" id="tabs-wrap">
     <button type="button" class="tab-arrow" id="tabs-prev" aria-label="Scroll tabs left" hidden>${icon('chevronLeft')}</button>
     <nav class="tabs" id="nav"></nav>
     <button type="button" class="tab-arrow" id="tabs-next" aria-label="Scroll tabs right" hidden>${icon('chevronRight')}</button>
+  </div>
+  <div class="detail-head" id="detail-head" hidden>
+    <button type="button" class="ghost small icon-btn" id="back-btn" aria-label="Back" title="Back">${icon('arrowLeft')}</button>
+    <span class="detail-title" id="detail-title"></span>
+    <a class="btn-ghost" id="detail-action" hidden></a>
   </div>
   <div id="view"></div>
 `;
@@ -80,6 +110,7 @@ function wireTabScroll() {
   nav.addEventListener('scroll', update);
   window.addEventListener('resize', update);
   update();
+  return update;
 }
 
 function wireThemeToggle() {
@@ -112,7 +143,14 @@ export function mountApp(data) {
 
   const nav = document.getElementById('nav');
   nav.innerHTML = NAV.map((n) => `<a href="${n.hash}">${n.label}</a>`).join('');
-  wireTabScroll();
+  updateTabArrows = wireTabScroll();
+
+  history.replaceState({ idx: 0 }, '');
+  document.getElementById('back-btn').addEventListener('click', () => {
+    if (backTarget?.fixedBack) location.hash = backTarget.fixedBack;
+    else if (curIdx > 0) history.back();
+    else location.hash = backTarget?.fallback ?? '#/';
+  });
 
   window.addEventListener('hashchange', renderRoute);
   if (!location.hash) location.hash = '#/';
@@ -127,11 +165,35 @@ function renderRoute() {
   const match = ROUTES.map((r) => ({ r, m: r.re.exec(hash) })).find((x) => x.m);
   if (!match) { location.hash = '#/'; return; }
 
+  if (history.state?.idx == null) {
+    curIdx += 1;
+    history.replaceState({ idx: curIdx }, '');
+  } else {
+    curIdx = history.state.idx;
+  }
+
   updateNavActive(hash);
   const params = Object.fromEntries((match.r.keys ?? []).map((k, i) => [k, match.m[i + 1]]));
   const view = document.getElementById('view');
   const ctx = { data: DATA, workoutsById, navigate: (h) => { location.hash = h; } };
+  renderHeader(match.r.header?.(ctx, params) ?? null);
   currentCleanup = match.r.view.render(view, ctx, params) ?? null;
+}
+
+// Top-level pages show the tab bar; nested pages swap it for a back header.
+function renderHeader(head) {
+  backTarget = head;
+  document.getElementById('tabs-wrap').hidden = !!head;
+  document.getElementById('detail-head').hidden = !head;
+  if (!head) { updateTabArrows(); return; }
+  document.getElementById('detail-title').textContent = head.title;
+  const action = document.getElementById('detail-action');
+  action.hidden = !head.action;
+  if (head.action) {
+    action.href = head.action.href;
+    action.innerHTML = `${icon('calendar')}<span></span>`;
+    action.lastChild.textContent = head.action.label;
+  }
 }
 
 function updateNavActive(hash) {

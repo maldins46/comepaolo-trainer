@@ -21,6 +21,14 @@ export function cycleWeek(ymd, cycleStart) {
   return Math.floor((dayNum(ymd) - dayNum(cycleStart)) / 7) + 1;
 }
 
+// Weeks run Sunday..Saturday, but the athlete sometimes runs on the Saturday ahead of the Sunday
+// slot: a Saturday run is the next week's run. Everything else stays in its own week.
+export function workoutWeek(kind, ymd, cycleStart) {
+  const offset = dayNum(ymd) - dayNum(cycleStart);
+  const saturday = ((offset % 7) + 7) % 7 === 6;
+  return Math.floor(offset / 7) + 1 + (kind === 'run' && saturday ? 1 : 0);
+}
+
 export function weekRange(week, cycleStart) {
   const start = dayNum(cycleStart) + (week - 1) * 7;
   const fmt = (d) => new Date(d * 86_400_000).toISOString().slice(0, 10);
@@ -199,8 +207,8 @@ export function normalizeWorkouts(raw, { plan, resolve }) {
   return raw
     .map((w) => {
       const date = localDate(w.start_time, tz);
-      const week = cycleWeek(date, plan.cycle.start);
       const cls = classifyWorkout(w, resolve);
+      const week = workoutWeek(cls.kind, date, plan.cycle.start);
       const exercises = (w.exercises ?? []).map((e) =>
         normalizeExercise(e, { key: resolve(e.exercise_template_id, e.title), plan, date }));
       const durationMin = Math.round((new Date(w.end_time) - new Date(w.start_time)) / 60000);

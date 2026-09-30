@@ -1,8 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { cycleWeek, localDate, parseScheme, plannedSessions, normalizeBodyweight, buildData, parseOverrides, rirMidpoint, plannedRpeForWeek, plannedSetsForWeek, normalizeRoutineNotes, plannedSetsByExercise } from '../scripts/lib/normalize.js';
+import { cycleWeek, localDate, parseScheme, plannedSessions, normalizeBodyweight, buildData, parseOverrides, rirMidpoint, plannedRpeForWeek, plannedSetsForWeek, normalizeRoutineNotes, plannedSetsByExercise, workoutWeek } from '../scripts/lib/normalize.js';
 import { weightTrend } from '../site/lib/progression.js';
+import { sessionRows, prescriptionTable } from '../site/lib/plan.js';
 import { encryptJson, decryptJson } from '../scripts/lib/crypto.js';
 
 const plan = JSON.parse(readFileSync('plan/plan.json', 'utf8'));
@@ -155,6 +156,33 @@ test('weightTrend: heaviest session per week, last week vs the one before', () =
   assert.equal(weightTrend([pt(1, 8), pt(3, 9)]).prevWeek, 1); // skips weeks without data
   assert.equal(weightTrend([pt(1, 12), pt(2, 12)]).dir, 'same');
   assert.equal(weightTrend([pt(1, 12), pt(2, 14.5)]).delta, 2.5);
+});
+
+test('sessionRows: coach loads beat the week rule beat the base plan; max-rep rows keep their raw scheme', () => {
+  const d = buildData({ plan, templateIds, hevy: synthetic, drive: null, now: new Date('2026-09-16T10:00:00Z') });
+  const base = sessionRows(d, 4, 'A');
+  assert.equal(base.source, 'plan');
+  assert.equal(base.rows[0].ex, 'bench_db');
+  assert.match(prescriptionTable(base.rows, d.exercises), /3xmax/); // push-up has no sets x reps to show
+  assert.equal(sessionRows(d, 8, 'A').source, 'rule');
+  d.weeks[2].coach = { next: { A: [{ ex: 'bench_db', sets: 4, reps: 10, kg: 24 }] } }; // week 3's `next` prescribes week 4
+  assert.equal(sessionRows(d, 4, 'A').source, 'coach');
+  assert.equal(sessionRows(d, 99, 'A'), null);
+});
+
+test('a Saturday run counts towards the next week, other Saturday work stays put', () => {
+  assert.equal(workoutWeek('run', '2026-09-12', plan.cycle.start), 2); // Saturday closing week 1
+  assert.equal(workoutWeek('run', '2026-09-13', plan.cycle.start), 2); // the usual Sunday run
+  assert.equal(workoutWeek('run', '2026-09-11', plan.cycle.start), 1);
+  assert.equal(workoutWeek('gym', '2026-09-12', plan.cycle.start), 1);
+  const hevy = { fetchedAt: 'x', bodyMeasurements: [], workouts: [
+    { id: 'r1', title: 'Domenica — Corsa 10 km', start_time: '2026-09-12T08:00:00Z', end_time: '2026-09-12T09:05:00Z', exercises: [] },
+  ] };
+  const d = buildData({ plan, templateIds, hevy, drive: null, now: new Date('2026-09-16T10:00:00Z') });
+  assert.equal(d.workouts[0].week, 2);
+  assert.equal(d.weeks[1].run.id, 'r1');
+  assert.equal(d.weeks[0].run, null);
+  assert.equal(d.runs[0].week, 2);
 });
 
 test('encryption round-trips and rejects a wrong passphrase', async () => {

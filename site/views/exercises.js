@@ -7,7 +7,12 @@ const TREND_ICON = { up: 'trendingUp', down: 'trendingDown', same: 'minus' };
 
 function trendHtml(series, assisted) {
   const tr = weightTrend(series);
-  if (!tr) return '';
+  if (!tr) {
+    // No earlier week to compare with yet.
+    const weeks = new Set(series.map((p) => p.week)).size;
+    const label = series.length === 1 ? 'First session' : weeks === 1 ? 'First week' : null;
+    return label ? `<span class="trend same" title="No earlier week to compare with yet">${icon('flag')} ${label}</span>` : '';
+  }
   // For assisted exercises less assistance is progress, so the colour flips while the arrow still follows the kg.
   const better = assisted ? tr.dir === 'down' : tr.dir === 'up';
   const tone = tr.dir === 'same' ? 'same' : better ? 'good' : 'watch';

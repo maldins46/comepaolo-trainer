@@ -1,8 +1,13 @@
-import { esc, fmtKg, fmtDate } from '../lib/format.js';
+import { esc, fmtDate } from '../lib/format.js';
 import { icon } from '../lib/icons.js';
+import { SESSION_FOCUS, DAY_NAMES, weekBlurb, plannedSetsFor, sessionRows, prescriptionTable } from '../lib/plan.js';
 
-const SESSION_FOCUS = { A: 'Chest, Shoulders & Triceps', B: 'Legs & Core', C: 'Back, Biceps & Rear Delts' };
-const DAY_NAMES = { sun: 'Sunday', mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday' };
+function updatedChip(iso) {
+  const d = new Date(iso);
+  const date = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+  const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  return `<span class="updated" title="Data last refreshed ${esc(d.toLocaleString('en-GB'))}">${icon('refreshCw')}<span>${date}</span><span class="upd-time">${time}</span></span>`;
+}
 
 function nextAction(week, cycle) {
   const dow = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][new Date(cycle.today + 'T00:00:00Z').getUTCDay()];
@@ -11,22 +16,10 @@ function nextAction(week, cycle) {
   return session ? { type: 'session', session } : { type: 'done' };
 }
 
-function renderPrescriptionRows(rows, exercises) {
-  if (!rows?.length) return '<p class="muted">No prescription rows.</p>';
-  return `<table class="tbl"><thead><tr><th>Exercise</th><th class="num">Sets×Reps</th><th class="num">Load</th></tr></thead><tbody>
-    ${rows.map((r) => `<tr>
-      <td>${esc(exercises[r.ex]?.name ?? r.ex)}</td>
-      <td class="num">${r.sets}×${r.reps ?? r.seconds + 's'}${r.repsMax ? '-' + r.repsMax : ''}</td>
-      <td class="num">${r.kgPerSet ? r.kgPerSet.map(fmtKg).join('/') : fmtKg(r.kg)}</td>
-    </tr>`).join('')}
-  </tbody></table>`;
-}
-
 function renderWhatsNext(data) {
   const cw = data.cycle.currentWeek;
   const week = data.weeks[cw - 1];
   if (!week) return '';
-  const prev = data.weeks[cw - 2];
   const action = nextAction(week, data.cycle);
 
   if (action.type === 'done') {
@@ -36,19 +29,17 @@ function renderWhatsNext(data) {
     return `<h2>What's next</h2><p>Sunday run — target: ${esc(week.runTarget ?? '—')}</p>`;
   }
 
-  const prescription = week.coach?.prescription ?? prev?.coach?.next ?? null;
-  const rows = prescription?.[action.session];
-  if (rows) {
-    return `<h2>What's next: session ${action.session}</h2>${renderPrescriptionRows(rows, data.exercises)}`;
+  const plan = sessionRows(data, cw, action.session);
+  if (plan.source === 'coach') {
+    return `<h2>What's next: session ${action.session}</h2>${prescriptionTable(plan.rows, data.exercises)}`;
   }
-  if (week.planned?.rule) {
-    return `<h2>What's next: session ${action.session}</h2><p>${esc(week.planned.rule)}</p>
+  if (plan.source === 'rule') {
+    return `<h2>What's next: session ${action.session}</h2><p>${esc(plan.rule)}</p>
       <p class="muted"><a href="#/week/${week.week}">Full week ${week.week} plan →</a></p>`;
   }
-  const base = week.planned?.[action.session];
   return `<h2>What's next: session ${action.session}</h2>
     <p class="muted">No coach-assigned load yet — base plan shown.</p>
-    ${renderPrescriptionRows(base?.map((r) => ({ ex: r.ex, sets: r.scheme.sets ?? '?', reps: r.scheme.reps, seconds: r.scheme.seconds, repsMax: r.scheme.repsMax })) ?? [], data.exercises)}`;
+    ${prescriptionTable(plan.rows, data.exercises)}`;
 }
 
 function weekBadgeClass(w) {
@@ -79,12 +70,9 @@ function renderHero(data) {
     : (week?.painFlag || week?.coach?.painFlags?.length) ? 'Pain flagged this week — see details below.' : null;
 
   return `
-    <div class="hero-head">
-      <p class="hint">Comepaolo Trainer tracks a 12-week body-recomposition cycle coached by Claude every
+    <p class="hint">Comepaolo Trainer tracks a 12-week body-recomposition cycle coached by Claude every
       Saturday, who reads Hevy, decides next week's loads and sends a report. This page shows where the
       week stands right now; the tabs above dig into weight, exercises, running and the coach's decisions.</p>
-      <div class="tile tile-compact"><h3>Updated</h3><p>${new Date(data.generatedAt).toLocaleString('en-GB')}</p></div>
-    </div>
     <div class="tiles">
       <div class="tile"><h3>Phase</h3><span class="big">Week ${cw} of 12</span><p>${esc(week?.phase ?? '—')}</p></div>
       <div class="tile"><h3>This week</h3><span class="big">${(week?.gymDone ?? 0) + (week?.run ? 1 : 0)}/4</span><p>${week?.gymDone ?? 0}/3 gym · run ${week?.run ? 'logged' : 'pending'}</p></div>
@@ -93,17 +81,6 @@ function renderHero(data) {
       ${alertText ? `<div class="tile bad"><h3>Alert</h3><span class="big">⚠</span><p>${esc(alertText)}</p></div>` : ''}
     </div>
   `;
-}
-
-function weekBlurb(week) {
-  const parts = [`${week.volume} volume`];
-  if (week.block) parts.push(`block ${week.block}`);
-  parts.push(`RIR ${week.rir}`, `${week.reps} reps`, `${week.rest} rest`);
-  return parts.join(' · ') + (week.technique ? ` — ${week.technique}.` : '.');
-}
-
-function plannedSetsFor(rows) {
-  return (rows ?? []).reduce((n, r) => n + (r.scheme.sets ?? 0), 0);
 }
 
 const descHtml = (text) => (text ? `<p class="desc" lang="it">${esc(text)}</p>` : '');
@@ -127,7 +104,7 @@ function sessionTile(s, i, week, workoutsById, data, note) {
       </div>
     </a>`;
   }
-  return `<div class="card planned">
+  return `<a class="card planned" href="#/plan/${week.week}/${s}" style="text-decoration:none;color:inherit;display:block">
     <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
       <div style="min-width:0">
         <span class="eyebrow">Session ${s}</span>
@@ -137,7 +114,7 @@ function sessionTile(s, i, week, workoutsById, data, note) {
       </div>
       <span class="badge muted">planned</span>
     </div>
-  </div>`;
+  </a>`;
 }
 
 function runTile(week, data, note) {
@@ -155,7 +132,7 @@ function runTile(week, data, note) {
       </div>
     </a>`;
   }
-  return `<div class="card planned">
+  return `<a class="card planned" href="#/plan/${week.week}/run" style="text-decoration:none;color:inherit;display:block">
     <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
       <div style="min-width:0">
         <span class="eyebrow">Run</span>
@@ -165,7 +142,7 @@ function runTile(week, data, note) {
       </div>
       <span class="badge muted">planned</span>
     </div>
-  </div>`;
+  </a>`;
 }
 
 function renderCurrentWeek(data, workoutsById) {
@@ -209,12 +186,15 @@ export function render(container, ctx) {
   const { data, navigate, workoutsById } = ctx;
 
   container.innerHTML = `
-    <h1>Overview</h1>
+    <div class="page-head">
+      <h1>Overview</h1>
+      ${updatedChip(data.generatedAt)}
+    </div>
     ${renderHero(data)}
     ${renderCurrentWeek(data, workoutsById)}
     <h2>12-week strip</h2>
     <p class="hint">Each column is one week. The three small icons show whether Monday, Wednesday and
-    Friday's session was logged; the last icon shows Sunday's run. Weeks 8 and 12 are marked — lighter
+    Friday's session was logged; the last icon shows the weekly run (Sunday, or the Saturday before). Weeks 8 and 12 are marked — lighter
     by design, not a drop in performance. Tap a week to see it in full.</p>
     <div class="legend">
       <span>${icon('checkCircle2')} session logged</span>

@@ -33,7 +33,7 @@ export function render(container, ctx, params) {
   const t = theme();
 
   if (!meta || !series.length) {
-    container.innerHTML = `<p><a href="#/exercises">← Exercises</a></p><p class="muted">No data for this exercise.</p>`;
+    container.innerHTML = `<p class="muted">No data for this exercise.</p>`;
     return;
   }
 
@@ -43,7 +43,6 @@ export function render(container, ctx, params) {
   const decisions = data.weeks.flatMap((w) => (w.coach?.decisions ?? []).filter((d) => d.ex === key).map((d) => ({ ...d, week: w.week })));
 
   container.innerHTML = `
-    <p><a href="#/exercises">← Exercises</a></p>
     <div class="topbar">
       <div><h1>${esc(meta.name)}</h1><p class="kind-icon" style="margin:0">${kindIcon(meta.kind)} ${esc(meta.kind)}${meta.muscle ? ' · ' + esc(meta.muscle) : ''}${meta.priority ? ' · priority' : ''}${meta.dumbbell ? ' · dumbbell' : ''}</p></div>
     </div>

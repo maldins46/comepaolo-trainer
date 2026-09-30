@@ -59,7 +59,9 @@ For local runs put secrets in `.env` (gitignored) and use `node --env-file=.env 
 
 These come from the coach skill. Getting them wrong makes the dashboard contradict the coach.
 
-- **Weeks** run Sunday -> Saturday. Sunday run opens the week, gym Mon/Wed/Fri, Saturday is
+- **Weeks** run Sunday -> Saturday, except that a run logged on a Saturday counts as the next week's
+  run (the athlete sometimes runs a day early; `workoutWeek` in `normalize.js`). Gym sessions and weight
+  stay in the week their date falls in. Sunday run opens the week, gym Mon/Wed/Fri, Saturday is
   report day. Week 8 = deload, week 12 = taper: both look "too easy" by design. The UI must
   say so rather than rendering them as a drop in performance.
 - **Block transitions** (weeks 4 and 9) jump loads 10-15% because the rep range drops. Mark
@@ -186,6 +188,12 @@ Views, in priority order:
    Week N gives the same sessions. Detail page: exercise-by-exercise sets and e1RM (gym), or
    distance/time/pace (run), plus a computed summary (volume, working sets, duration) — never
    an invented verdict, since there's no coach judgment at the single-session level.
+
+Planned (not yet logged) sessions and the run are links too: `#/plan/:week/:A|B|C|run` shows the
+session's prescription (coach loads, else the week rule, else the base plan) and the coach's routine note.
+Nested pages (single exercise, workout/run, week) replace the tab bar with a back header: a back
+arrow (browser history when the previous page is inside the app, else the parent list; the week
+page always returns to Overview), a short title, and on workouts/runs a "Week N" button on the right.
 
 Design: a training log, not a SaaS template. Numbers are the content: give weights and
 dates a tabular-figure face, keep chrome minimal, one accent colour for "this week", a
