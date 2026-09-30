@@ -21,7 +21,7 @@ function renderRows(series, key, exercises, workoutsById) {
       <td class="num">${actualKg}${p.doubled ? ' <span class="badge muted" title="Logged per hand before 2026-09-12, doubled">×2</span>' : ''}</td>
       <td class="num">${p.reps.join('/')}</td>
       <td class="num">${p.bestE1rm ?? '—'}</td>
-      <td>${p.progression?.reason ? esc(p.progression.reason) : ''}</td>
+      <td class="reason">${p.progression?.reason ? esc(p.progression.reason) : ''}</td>
     </tr>`;
   }).reverse().join('');
 }
@@ -109,10 +109,10 @@ export function render(container, ctx, params) {
     so it shows progress that the load chart alone hides.
     ${e1rmEstimate.length > 1 ? `The dashed line applies the same formula to the estimated loads at each week's target reps, so it assumes you hit them.` : ''}</p>
     <h2>Sessions</h2>
-    <table class="tbl">
+    <div class="table-scroll"><table class="tbl">
       <thead><tr><th>Date</th><th>Session</th><th class="num">Prescribed</th><th class="num">Actual</th><th class="num">Reps</th><th class="num">e1RM</th><th>Coach reason</th></tr></thead>
       <tbody>${renderRows(series, key, data.exercises, workoutsById)}</tbody>
-    </table>
+    </table></div>
   `;
 
   const load = makeChart(document.getElementById('load-chart'), {

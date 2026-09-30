@@ -1,6 +1,6 @@
 import { esc, fmtDate } from '../lib/format.js';
 import { icon } from '../lib/icons.js';
-import { SESSION_FOCUS, DAY_NAMES, weekBlurb, plannedSetsFor, sessionRows, prescriptionTable } from '../lib/plan.js';
+import { SESSION_FOCUS, DAY_NAMES, weekBlurb, plannedSetsFor } from '../lib/plan.js';
 
 function updatedChip(iso) {
   const d = new Date(iso);
@@ -14,32 +14,6 @@ function nextAction(week, cycle) {
   if (!week.run && dow === cycle.runDay) return { type: 'run' };
   const session = ['A', 'B', 'C'].find((s) => !week.sessions[s]);
   return session ? { type: 'session', session } : { type: 'done' };
-}
-
-function renderWhatsNext(data) {
-  const cw = data.cycle.currentWeek;
-  const week = data.weeks[cw - 1];
-  if (!week) return '';
-  const action = nextAction(week, data.cycle);
-
-  if (action.type === 'done') {
-    return `<h2>What's next</h2><p class="muted">All sessions logged for this week. Nice.</p>`;
-  }
-  if (action.type === 'run') {
-    return `<h2>What's next</h2><p>Sunday run — target: ${esc(week.runTarget ?? '—')}</p>`;
-  }
-
-  const plan = sessionRows(data, cw, action.session);
-  if (plan.source === 'coach') {
-    return `<h2>What's next: session ${action.session}</h2>${prescriptionTable(plan.rows, data.exercises)}`;
-  }
-  if (plan.source === 'rule') {
-    return `<h2>What's next: session ${action.session}</h2><p>${esc(plan.rule)}</p>
-      <p class="muted"><a href="#/week/${week.week}">Full week ${week.week} plan →</a></p>`;
-  }
-  return `<h2>What's next: session ${action.session}</h2>
-    <p class="muted">No coach-assigned load yet — base plan shown.</p>
-    ${prescriptionTable(plan.rows, data.exercises)}`;
 }
 
 function weekBadgeClass(w) {
@@ -206,7 +180,6 @@ export function render(container, ctx) {
     </div>
     <div id="strip"></div>
     ${data.weeks.some((w) => w.coach?.halt?.halted) ? `<div class="banner bad">Halted: ${esc(data.weeks.find((w) => w.coach?.halt?.halted).coach.halt.reasons.join('; '))}</div>` : ''}
-    ${renderWhatsNext(data)}
   `;
 
   document.getElementById('strip').replaceWith(renderStrip(data, navigate));

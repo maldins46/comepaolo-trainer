@@ -36,13 +36,13 @@ const schemeText = (r) => (r.sets != null && (r.reps != null || r.seconds != nul
 
 export function prescriptionTable(rows, exercises) {
   if (!rows?.length) return '<p class="muted">No prescription rows.</p>';
-  return `<table class="tbl"><thead><tr><th>Exercise</th><th class="num">Sets×Reps</th><th class="num">Load</th></tr></thead><tbody>
+  return `<div class="table-scroll"><table class="tbl"><thead><tr><th>Exercise</th><th class="num">Sets×Reps</th><th class="num">Load</th></tr></thead><tbody>
     ${rows.map((r) => `<tr>
       <td>${esc(exercises[r.ex]?.name ?? r.ex)}</td>
       <td class="num">${esc(schemeText(r))}</td>
       <td class="num">${r.kgPerSet ? r.kgPerSet.map(fmtKg).join('/') : fmtKg(r.kg)}</td>
     </tr>`).join('')}
-  </tbody></table>`;
+  </tbody></table></div>`;
 }
 
 // The planned sessions a week draws from: deload reuses block 2's exercises, taper block 3's.

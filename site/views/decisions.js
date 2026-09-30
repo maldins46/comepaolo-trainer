@@ -9,7 +9,7 @@ function decisionRow(d, exercises) {
     <td>${esc(exercises[d.ex]?.name ?? d.ex)}</td>
     <td><span class="badge ${actionBadgeClass(d.action)}">${esc(actionLabel(d.action))}</span></td>
     <td class="num">${kg}</td>
-    <td>${esc(d.reason ?? '')}</td>
+    <td class="reason">${esc(d.reason ?? '')}</td>
     <td>${d.twoByTwo ? `${d.twoByTwo.qualifyingWeeks}/${d.twoByTwo.required}` : ''}</td>
   </tr>`;
 }
@@ -34,10 +34,10 @@ export function render(container, ctx) {
       <select id="filter-ex"><option value="">All exercises</option>${Object.entries(data.exercises).map(([k, m]) => `<option value="${k}">${esc(m.name)}</option>`).join('')}</select>
       <select id="filter-action"><option value="">All actions</option>${ACTIONS.map((a) => `<option value="${a}">${esc(actionLabel(a))}</option>`).join('')}</select>
     </div>
-    <table class="tbl">
+    <div class="table-scroll"><table class="tbl">
       <thead><tr><th>Week</th><th>Exercise</th><th>Action</th><th class="num">From → To</th><th>Reason</th><th>2×2</th></tr></thead>
       <tbody id="rows">${rows.map((d) => decisionRow(d, data.exercises)).join('')}</tbody>
-    </table>
+    </table></div>
     ${gapWeeks.length ? `<p class="muted">No coach file: ${gapWeeks.map((w) => 'S' + w).join(', ')}</p>` : ''}
 
     ${halts.length ? `<h2>Halts</h2>${halts.map((h) => `<div class="banner bad">Week ${h.week}: ${esc(h.reasons.join('; '))}</div>`).join('')}` : ''}

@@ -202,10 +202,14 @@ nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--
 .chart-wrap.small { height: 90px; }
 @media (min-width: 700px) { .chart-wrap { height: 220px; } .chart-wrap.tall { height: 300px; } }
 
+/* Wide tables scroll sideways inside their own box instead of stretching the page. */
+.table-scroll { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table.tbl { width: 100%; border-collapse: collapse; font-size: .88rem; }
 table.tbl th, table.tbl td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
 table.tbl th { color: var(--muted); font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .02em; }
 table.tbl th.num, table.tbl td.num { text-align: right; }
+table.tbl td:first-child { white-space: nowrap; }
+table.tbl td.reason { min-width: 22rem; }
 
 .filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
 

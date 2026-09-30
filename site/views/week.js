@@ -9,7 +9,7 @@ function overrideRow(o) {
 function sessionTable(session, workout, prescriptionRows, exercises) {
   if (!workout) return `<p class="muted">Not logged.</p>`;
   const bySession = new Map((prescriptionRows ?? []).map((r) => [r.ex, r]));
-  return `<table class="tbl">
+  return `<div class="table-scroll"><table class="tbl">
     <thead><tr><th>Exercise</th><th class="num">Prescribed</th><th class="num">Actual</th><th class="num">Reps</th></tr></thead>
     <tbody>${workout.exercises.map((e) => {
       const p = bySession.get(e.key);
@@ -18,7 +18,7 @@ function sessionTable(session, workout, prescriptionRows, exercises) {
       const reps = e.sets.filter((s) => s.type !== 'warmup').map((s) => s.reps ?? (s.seconds ? s.seconds + 's' : '—')).join('/');
       return `<tr><td>${esc(exercises[e.key]?.name ?? e.hevyTitle)}</td><td class="num">${prescribed}</td><td class="num">${actual}</td><td class="num">${reps}</td></tr>`;
     }).join('')}</tbody>
-  </table>`;
+  </table></div>`;
 }
 
 export function render(container, ctx, params) {

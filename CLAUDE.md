@@ -141,11 +141,12 @@ or on Saturday evening after the report email.
 
 Views, in priority order:
 
-1. **Overview**: current week and phase, what's next (the next session's
-   prescription from `coach.next` of the latest week file), the latest verdict, and the
-   12-week strip: blocks, deload and taper marked, adherence per week (A/B/C/run),
-   weekly weight average, pain flags.
-   **Effort &amp; volume (agreed with the athlete):** one dual-axis chart — bars for planned
+1. **Overview**: stat tiles (phase, this week n/4, weight, next up), the "Week N: Phase"
+   section (training parameters plus a tile per session and the run, solid if logged, dashed
+   and linking to its planned-session page if pending), and the 12-week strip: blocks, deload
+   and taper marked, adherence per week (A/B/C/run), weekly weight average, pain flags.
+   There is no separate "What's next" or "latest verdict" section (removed on purpose).
+   **Effort &amp; volume (agreed with the athlete; shown on the Workouts page):** one dual-axis chart — bars for planned
    volume (working sets per week across A+B+C, left axis), a line for planned intensity
    (RIR midpoint converted to RPE, 10 = failure, right axis, 0-10 fixed), both across S1-S12:
    two facets of the same week's planned training stimulus, not unrelated metrics, so one

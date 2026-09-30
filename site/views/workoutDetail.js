@@ -61,9 +61,9 @@ export function render(container, ctx, params) {
       <div class="tile"><h3>Duration</h3><span class="big">${w.durationMin}min</span></div>
     </div>
     ${anyDropped ? '<p class="hint">At least one exercise had its load drop set to set within this session.</p>' : ''}
-    <table class="tbl">
+    <div class="table-scroll"><table class="tbl">
       <thead><tr><th>Exercise</th><th>Sets</th><th class="num">e1RM</th><th>Note</th></tr></thead>
       <tbody>${w.exercises.map((e) => exerciseRow(e, data.exercises)).join('')}</tbody>
-    </table>
+    </table></div>
   `);
 }
