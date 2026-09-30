@@ -95,12 +95,14 @@ These come from the coach skill. Getting them wrong makes the dashboard contradi
 generatedAt, hevyFetchedAt
 cycle      { start, weeks, timezone, currentWeek, today, ... }
 rules      progression text, increments, caps, weightLoss thresholds
-exercises  plan key -> { name (IT), hevy[], kind, priority?, dumbbell?, note? }
+exercises  plan key -> { name (IT), hevy[], kind, muscle?, priority?, dumbbell?, note? }
+muscleGroups[]  ordered muscle names (priority first); `muscle` is one of them, absent for stretching/running
 runningBaseline { beforeBreakMinutes, onReturnMinutes }
 weeks[12]  { week, block, phase, volume, rir, reps, rest, transition?, immutable?, technique?,
              range{start,end}, state: done|current|future,
              planned (base plan per session A/B/C, or {rule} for weeks 8/12),
              plannedRpe (10 - RIR midpoint), plannedSets (working sets across A+B+C),
+             setsByMuscle{planned{Muscle:n}, logged{Muscle:n}} (working sets, from plan / from Hevy),
              runTarget, runTargetMinutes|null, sessions{A,B,C: workoutId|null}, gymDone, extraWorkouts[],
              run{id,km,minutes,paceMinPerKm}|null, bodyweight{n,avg,delta,status}|null,
              feedback[{source,date,text,exercise?}] (source mixes two vocabularies:
@@ -158,10 +160,13 @@ Views, in priority order:
    max) so the two series don't visually merge.
 2. **Weight**: weekly averages vs the 0.5 kg/week target line with the 0.3-0.7 band shaded,
    daily values as faint dots, the coach's nutrition suggestion when present.
-3. **Exercises**: one small card per exercise (priority first) with a load sparkline, the
-   current load, 2x2 progress (e.g. "1/2 weeks"), and a "held for N weeks" count.
+3. **Exercises**: a cycle-to-date chart on top (horizontal bars per muscle group: working
+   sets logged vs still to do, from `weeks[].setsByMuscle` summed up to the current week),
+   then one small card per exercise grouped by muscle (priority muscles and exercises first),
+   showing the current load. No sparklines or unexplained pills on the cards.
    Detail page: load and reps per session vs prescription, e1RM trend, block-transition
-   markers, doubled-from-per-hand markers, the coach's `reason` per week.
+   markers, doubled-from-per-hand markers, the coach's `reason` per week, and the 2x2 /
+   held-for-N-weeks state as plain sentences.
 4. **Running**: pace (min/km) and distance (km) per week on one dual-axis chart — bars for
    pace (left axis), a line for distance (right axis), since both describe the same weekly
    run. A continuous dashed line marks the pre-break pace (60'/10km = 6.0'/km) across all 12

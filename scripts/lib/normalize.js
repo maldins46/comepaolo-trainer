@@ -83,6 +83,34 @@ export function plannedSetsForWeek(plan, week) {
     total + planned[s].reduce((n, row) => n + setsInScheme(row.scheme.raw), 0), 0);
 }
 
+// Same rules as plannedSetsForWeek, kept per exercise so sets can be grouped by muscle.
+export function plannedSetsByExercise(plan, week) {
+  const planned = plannedSessions(plan, week);
+  if (!planned) return {};
+  const out = {};
+  const add = (ex, n) => { out[ex] = (out[ex] ?? 0) + n; };
+  if (planned.rule) {
+    if (week === 8) {
+      for (const [ex, n] of Object.entries(plannedSetsByExercise(plan, 7))) out[ex] = Math.round(n / 2);
+    } else if (week === 12) {
+      const block3 = plannedSessions(plan, 9);
+      for (const s of ['A', 'B', 'C']) for (const row of block3[s]) add(row.ex, 3);
+    }
+    return out;
+  }
+  for (const s of ['A', 'B', 'C']) for (const row of planned[s]) add(row.ex, setsInScheme(row.scheme.raw));
+  return out;
+}
+
+function byMuscle(plan, setsByKey) {
+  const out = {};
+  for (const [ex, n] of Object.entries(setsByKey)) {
+    const muscle = plan.exercises[ex]?.muscle;
+    if (muscle) out[muscle] = (out[muscle] ?? 0) + n;
+  }
+  return out;
+}
+
 export function blockForWeek(plan, week) {
   return Object.entries(plan.sessions).find(([, b]) => b.weeks.includes(week))?.[0] ?? null;
 }
@@ -310,6 +338,13 @@ export function buildData({ plan, templateIds, hevy, drive, now = new Date() }) 
       planned: plannedSessions(plan, pw.week),
       plannedRpe: plannedRpeForWeek(pw),
       plannedSets: plannedSetsForWeek(plan, pw.week),
+      setsByMuscle: {
+        planned: byMuscle(plan, plannedSetsByExercise(plan, pw.week)),
+        logged: byMuscle(plan, gym.flatMap((w) => w.exercises).reduce((acc, e) => {
+          acc[e.key] = (acc[e.key] ?? 0) + e.summary.workingSets;
+          return acc;
+        }, {})),
+      },
       runTarget: runPlan?.target ?? null,
       runTargetMinutes: runPlan?.targetMinutes ?? null,
       sessions: Object.fromEntries(['A', 'B', 'C'].map((s) => [s, gym.find((w) => w.session === s)?.id ?? null])),
@@ -354,6 +389,7 @@ export function buildData({ plan, templateIds, hevy, drive, now = new Date() }) 
     cycle: { ...plan.cycle, currentWeek, today },
     rules: plan.rules,
     exercises: plan.exercises,
+    muscleGroups: plan.muscleGroups,
     runningBaseline: plan.runningBaseline,
     weeks,
     workouts,

@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { cycleWeek, localDate, parseScheme, plannedSessions, normalizeBodyweight, buildData, parseOverrides, rirMidpoint, plannedRpeForWeek, plannedSetsForWeek, normalizeRoutineNotes } from '../scripts/lib/normalize.js';
+import { cycleWeek, localDate, parseScheme, plannedSessions, normalizeBodyweight, buildData, parseOverrides, rirMidpoint, plannedRpeForWeek, plannedSetsForWeek, normalizeRoutineNotes, plannedSetsByExercise } from '../scripts/lib/normalize.js';
+import { weightTrend } from '../site/lib/progression.js';
 import { encryptJson, decryptJson } from '../scripts/lib/crypto.js';
 
 const plan = JSON.parse(readFileSync('plan/plan.json', 'utf8'));
@@ -121,6 +122,39 @@ test('routine notes: per session + run, empty -> null, other titles ignored, non
   assert.equal(d.routineNotes.A, 'n');
   assert.equal(d.quality.routinesWithNotes, 1);
   assert.equal(buildData({ plan, templateIds, hevy: synthetic, drive: null, now: new Date('2026-09-16T10:00:00Z') }).routineNotes, null);
+});
+
+test('muscle groups: every exercise used in the plan has a listed muscle', () => {
+  const used = new Set(Object.values(plan.sessions).flatMap((b) => ['A', 'B', 'C'].flatMap((s) => (b[s] ?? []).map((r) => r.ex))));
+  for (const ex of used) assert.ok(plan.muscleGroups.includes(plan.exercises[ex].muscle), `${ex} has no valid muscle`);
+  for (const e of Object.values(plan.exercises)) if (e.muscle) assert.ok(plan.muscleGroups.includes(e.muscle));
+});
+
+test('plannedSetsByExercise adds up to plannedSetsForWeek (deload rounds per exercise)', () => {
+  const sum = (o) => Object.values(o).reduce((n, v) => n + v, 0);
+  for (let w = 1; w <= 12; w++) {
+    const total = sum(plannedSetsByExercise(plan, w));
+    const expected = plannedSetsForWeek(plan, w);
+    if (w === 8) assert.ok(Math.abs(total - expected) <= Object.keys(plannedSetsByExercise(plan, 7)).length / 2, 'deload');
+    else assert.equal(total, expected, `week ${w}`);
+  }
+});
+
+test('setsByMuscle: logged working sets grouped by muscle, planned per week', () => {
+  const d = buildData({ plan, templateIds, hevy: synthetic, drive: null, now: new Date('2026-09-16T10:00:00Z') });
+  assert.equal(d.weeks[0].setsByMuscle.logged.Shoulders, 2); // lateral raise, warmup excluded
+  assert.ok(d.weeks[0].setsByMuscle.planned.Chest > 0);
+  assert.deepEqual(d.muscleGroups, plan.muscleGroups);
+});
+
+test('weightTrend: heaviest session per week, last week vs the one before', () => {
+  const pt = (week, topKg) => ({ week, topKg });
+  assert.equal(weightTrend([pt(1, 10)]), null);
+  assert.equal(weightTrend([pt(1, null), pt(2, 10)]), null);
+  assert.deepEqual(weightTrend([pt(1, 8), pt(2, 8), pt(2, 10), pt(3, 8)]), { dir: 'down', delta: -2, prevWeek: 2, lastWeek: 3 });
+  assert.equal(weightTrend([pt(1, 8), pt(3, 9)]).prevWeek, 1); // skips weeks without data
+  assert.equal(weightTrend([pt(1, 12), pt(2, 12)]).dir, 'same');
+  assert.equal(weightTrend([pt(1, 12), pt(2, 14.5)]).delta, 2.5);
 });
 
 test('encryption round-trips and rejects a wrong passphrase', async () => {

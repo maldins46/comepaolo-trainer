@@ -129,6 +129,10 @@ nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--
 .cards.quad { grid-template-columns: 1fr; }
 @media (min-width: 640px) { .cards.quad { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1000px) { .cards.quad { grid-template-columns: repeat(4, 1fr); } }
+.card .trend { display: inline-flex; align-items: center; gap: 5px; font-size: .8rem; font-weight: 600; }
+.card .trend.good { color: var(--ok); }
+.card .trend.watch { color: var(--warn); }
+.card .trend.same { color: var(--muted); }
 .card .desc { margin: 6px 0 8px; font-size: .85rem; line-height: 1.45; color: var(--ink); }
 
 .banner { border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; border: 1px solid var(--line); }

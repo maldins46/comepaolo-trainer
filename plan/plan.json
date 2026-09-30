@@ -192,13 +192,23 @@
     "beforeBreakMinutes": 60,
     "onReturnMinutes": 75
   },
+  "muscleGroups": [
+    "Shoulders",
+    "Chest",
+    "Back",
+    "Biceps",
+    "Triceps",
+    "Legs",
+    "Core"
+  ],
   "exercises": {
     "chest_press": {
       "name": "Chest Press",
       "hevy": [
         "Chest Press (Machine)"
       ],
-      "kind": "machine"
+      "kind": "machine",
+      "muscle": "Chest"
     },
     "shoulder_press": {
       "name": "Shoulder Press",
@@ -207,14 +217,16 @@
         "Shoulder Press (Machine)"
       ],
       "kind": "machine",
-      "priority": true
+      "priority": true,
+      "muscle": "Shoulders"
     },
     "pec_deck": {
       "name": "Pec Deck",
       "hevy": [
         "Butterfly (Pec Deck)"
       ],
-      "kind": "machine"
+      "kind": "machine",
+      "muscle": "Chest"
     },
     "lateral_raise": {
       "name": "Lateral Raise",
@@ -223,7 +235,8 @@
       ],
       "kind": "isolation",
       "priority": true,
-      "dumbbell": true
+      "dumbbell": true,
+      "muscle": "Shoulders"
     },
     "skullcrusher": {
       "name": "Skullcrusher",
@@ -232,7 +245,8 @@
         "Triceps Extension (Dumbbell)"
       ],
       "kind": "isolation",
-      "dumbbell": true
+      "dumbbell": true,
+      "muscle": "Triceps"
     },
     "reverse_fly": {
       "name": "Rear Delt Reverse Fly",
@@ -245,7 +259,8 @@
       ],
       "kind": "isolation",
       "priority": true,
-      "dumbbell": true
+      "dumbbell": true,
+      "muscle": "Shoulders"
     },
     "bench_db": {
       "name": "Dumbbell Bench Press",
@@ -253,42 +268,48 @@
         "Bench Press (Dumbbell)"
       ],
       "kind": "press",
-      "dumbbell": true
+      "dumbbell": true,
+      "muscle": "Chest"
     },
     "push_up": {
       "name": "Push Up",
       "hevy": [
         "Push Up"
       ],
-      "kind": "bodyweight"
+      "kind": "bodyweight",
+      "muscle": "Chest"
     },
     "dip": {
       "name": "Triceps Dip",
       "hevy": [
         "Triceps Dip"
       ],
-      "kind": "bodyweight"
+      "kind": "bodyweight",
+      "muscle": "Triceps"
     },
     "leg_press": {
       "name": "Leg Press",
       "hevy": [
         "Leg Press (Machine)"
       ],
-      "kind": "machine"
+      "kind": "machine",
+      "muscle": "Legs"
     },
     "leg_extension": {
       "name": "Leg Extension",
       "hevy": [
         "Leg Extension (Machine)"
       ],
-      "kind": "machine"
+      "kind": "machine",
+      "muscle": "Legs"
     },
     "leg_curl": {
       "name": "Seated Leg Curl",
       "hevy": [
         "Seated Leg Curl (Machine)"
       ],
-      "kind": "machine"
+      "kind": "machine",
+      "muscle": "Legs"
     },
     "lunge": {
       "name": "Dumbbell Lunge",
@@ -296,7 +317,8 @@
         "Lunge (Dumbbell)"
       ],
       "kind": "press",
-      "dumbbell": true
+      "dumbbell": true,
+      "muscle": "Legs"
     },
     "rdl": {
       "name": "Romanian Deadlift",
@@ -304,7 +326,8 @@
         "Romanian Deadlift (Dumbbell)"
       ],
       "kind": "press",
-      "dumbbell": true
+      "dumbbell": true,
+      "muscle": "Legs"
     },
     "calf_raise": {
       "name": "Standing Calf Raise",
@@ -312,14 +335,16 @@
         "Standing Calf Raise (Dumbbell)"
       ],
       "kind": "isolation",
-      "dumbbell": true
+      "dumbbell": true,
+      "muscle": "Legs"
     },
     "back_extension": {
       "name": "Back Extension",
       "hevy": [
         "Back Extension (Hyperextension)"
       ],
-      "kind": "machine"
+      "kind": "machine",
+      "muscle": "Core"
     },
     "vertical_traction": {
       "name": "Vertical Traction",
@@ -328,14 +353,16 @@
         "Lat Pulldown (Machine)"
       ],
       "kind": "machine",
-      "note": "Replaces Lat Pulldown from 2026-09-12 (override)"
+      "note": "Replaces Lat Pulldown from 2026-09-12 (override)",
+      "muscle": "Back"
     },
     "seated_row": {
       "name": "Seated Row",
       "hevy": [
         "Seated Row (Machine)"
       ],
-      "kind": "machine"
+      "kind": "machine",
+      "muscle": "Back"
     },
     "db_row": {
       "name": "Dumbbell Row",
@@ -343,14 +370,16 @@
         "Bent Over Row (Dumbbell)"
       ],
       "kind": "press",
-      "dumbbell": true
+      "dumbbell": true,
+      "muscle": "Back"
     },
     "barbell_row": {
       "name": "Underhand Barbell Row",
       "hevy": [
         "Bent Over Row (Barbell)"
       ],
-      "kind": "press"
+      "kind": "press",
+      "muscle": "Back"
     },
     "assisted_pullup": {
       "name": "Assisted Pull Up",
@@ -358,7 +387,8 @@
         "Pull Up (Assisted)",
         "Assisted Pull Up (Machine)"
       ],
-      "kind": "assisted"
+      "kind": "assisted",
+      "muscle": "Back"
     },
     "bicep_curl": {
       "name": "Bicep Curl",
@@ -366,7 +396,8 @@
         "Bicep Curl (Dumbbell)"
       ],
       "kind": "isolation",
-      "dumbbell": true
+      "dumbbell": true,
+      "muscle": "Biceps"
     },
     "hammer_curl": {
       "name": "Hammer Curl",
@@ -374,7 +405,8 @@
         "Hammer Curl (Dumbbell)"
       ],
       "kind": "isolation",
-      "dumbbell": true
+      "dumbbell": true,
+      "muscle": "Biceps"
     },
     "ab_machine": {
       "name": "Ab Crunch Machine",
@@ -382,42 +414,48 @@
         "Ab Crunch (Machine)",
         "Crunch (Machine)"
       ],
-      "kind": "machine"
+      "kind": "machine",
+      "muscle": "Core"
     },
     "crunch": {
       "name": "Crunch",
       "hevy": [
         "Crunch"
       ],
-      "kind": "bodyweight"
+      "kind": "bodyweight",
+      "muscle": "Core"
     },
     "knee_raise": {
       "name": "Hanging Knee Raise",
       "hevy": [
         "Hanging Knee Raise"
       ],
-      "kind": "bodyweight"
+      "kind": "bodyweight",
+      "muscle": "Core"
     },
     "plank": {
       "name": "Plank",
       "hevy": [
         "Plank"
       ],
-      "kind": "duration"
+      "kind": "duration",
+      "muscle": "Core"
     },
     "side_plank": {
       "name": "Side Plank",
       "hevy": [
         "Side Plank"
       ],
-      "kind": "duration"
+      "kind": "duration",
+      "muscle": "Core"
     },
     "weighted_plank": {
       "name": "Weighted Plank",
       "hevy": [
         "Weighted Plank"
       ],
-      "kind": "duration"
+      "kind": "duration",
+      "muscle": "Core"
     },
     "stretching": {
       "name": "Stretching",

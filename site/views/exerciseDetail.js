@@ -45,12 +45,12 @@ export function render(container, ctx, params) {
   container.innerHTML = `
     <p><a href="#/exercises">← Exercises</a></p>
     <div class="topbar">
-      <div><h1>${esc(meta.name)}</h1><p class="kind-icon" style="margin:0">${kindIcon(meta.kind)} ${esc(meta.kind)}${meta.priority ? ' · priority' : ''}${meta.dumbbell ? ' · dumbbell' : ''}</p></div>
-      <div class="badge-row" style="display:flex;gap:6px">
-        ${twoByTwo ? `<span class="badge warn">2×2: ${twoByTwo.qualifyingWeeks}/${twoByTwo.required}</span>` : ''}
-        ${held > 0 ? `<span class="badge muted">held ${held}w</span>` : ''}
-      </div>
+      <div><h1>${esc(meta.name)}</h1><p class="kind-icon" style="margin:0">${kindIcon(meta.kind)} ${esc(meta.kind)}${meta.muscle ? ' · ' + esc(meta.muscle) : ''}${meta.priority ? ' · priority' : ''}${meta.dumbbell ? ' · dumbbell' : ''}</p></div>
     </div>
+    ${twoByTwo || held > 0 ? `<p class="muted" style="margin:6px 0 0">${[
+      twoByTwo && `Raise rule (2×2): ${twoByTwo.qualifyingWeeks} of ${twoByTwo.required} qualifying weeks`,
+      held > 0 && `load unchanged for ${held} ${held === 1 ? 'week' : 'weeks'}`,
+    ].filter(Boolean).join(' · ')}</p>` : ''}
     <p class="hint">Coach decisions (ticks above the line) are placed just after the week they were made
     in, since a decision applies to the week that follows it, not the one it's based on.
     ${meta.dumbbell ? ' Dumbbell loads are the sum of both hands since 2026-09-12; earlier sets were logged per hand and are doubled here (marked ×2 in the table and ' + swatchDot(t.warn) + ' on the chart).' : ''}</p>
