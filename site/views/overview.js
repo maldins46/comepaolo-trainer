@@ -77,7 +77,7 @@ function renderHero(data) {
 
   return `
     <div class="hero-head">
-      <p class="hint">Comepaolo Training tracks a 12-week body-recomposition cycle coached by Claude every
+      <p class="hint">Comepaolo Trainer tracks a 12-week body-recomposition cycle coached by Claude every
       Saturday, who reads Hevy, decides next week's loads and sends a report. This page shows where the
       week stands right now; the tabs above dig into weight, exercises, running and the coach's decisions.</p>
       <div class="tile tile-compact"><h3>Updated</h3><p>${new Date(data.generatedAt).toLocaleString('en-GB')}</p></div>

@@ -38,7 +38,7 @@ let currentCleanup = null;
 
 const SHELL_HTML = `
   <div class="top-strip">
-    <span class="brand">Comepaolo Training</span>
+    <span class="brand"><img class="brand-icon" src="icons/badge-64.png" alt="" width="28" height="28">Comepaolo Trainer</span>
     <div class="top-actions">
       <div class="theme-toggle" role="group" aria-label="Theme">
         <button type="button" class="small" data-theme-btn="">Auto</button>

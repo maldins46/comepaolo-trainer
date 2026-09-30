@@ -78,7 +78,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 /* ---- app shell / nav ---- */
 .topbar { display: flex; justify-content: space-between; gap: 16px; align-items: start; flex-wrap: wrap; }
 .top-strip { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding-top: 8px; }
-.top-strip .brand { font: 800 1.05rem var(--display); letter-spacing: -.01em; }
+.top-strip .brand { display: inline-flex; align-items: center; gap: 8px; font: 800 1.05rem var(--display); letter-spacing: -.01em; }
+.brand-icon { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; }
 .top-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .theme-toggle { display: inline-flex; gap: 2px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 2px; }
 .theme-toggle button { background: none; color: var(--muted); border-radius: 6px; padding: 5px 9px; font-size: .78rem; }
