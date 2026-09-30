@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { cycleWeek, localDate, parseScheme, plannedSessions, normalizeBodyweight, buildData, parseOverrides, rirMidpoint, plannedRpeForWeek, plannedSetsForWeek, normalizeRoutineNotes, plannedSetsByExercise, workoutWeek } from '../scripts/lib/normalize.js';
-import { weightTrend } from '../site/lib/progression.js';
-import { sessionRows, prescriptionTable } from '../site/lib/plan.js';
+import { weightTrend, projectLoads } from '../site/lib/progression.js';
+import { sessionRows, prescriptionTable, exerciseInWeek, plannedReps } from '../site/lib/plan.js';
 import { encryptJson, decryptJson } from '../scripts/lib/crypto.js';
 
 const plan = JSON.parse(readFileSync('plan/plan.json', 'utf8'));
@@ -183,6 +183,66 @@ test('a Saturday run counts towards the next week, other Saturday work stays put
   assert.equal(d.weeks[1].run.id, 'r1');
   assert.equal(d.weeks[0].run, null);
   assert.equal(d.runs[0].week, 2);
+});
+
+test('projectLoads: block jumps, deload = week 7, taper = -10%, own trend inside a block, coach anchor', () => {
+  const log = (...kgs) => kgs.map((topKg, i) => ({ week: i + 1, topKg }));
+  const flat = projectLoads({ series: log(8, 8, 8) });
+  const at = (arr, w) => arr.find((p) => p.week === w).kg;
+  assert.deepEqual(flat.map((p) => p.week), [4, 5, 6, 7, 8, 9, 10, 11, 12]);
+  assert.equal(at(flat, 4), 9);                 // 8 * 1.125 = 9
+  assert.equal(at(flat, 5), 9);                 // flat history -> flat inside the block
+  assert.equal(at(flat, 8), at(flat, 7));       // deload repeats week 7
+  assert.equal(at(flat, 9), 10);                // 9 * 1.125 = 10.125 -> 10 (nearest 0.5)
+  assert.equal(at(flat, 12), 9);                // taper: 10 * 0.9
+  const rising = projectLoads({ series: log(8, 9, 10) });
+  assert.equal(at(rising, 5) - at(rising, 4), 1); // +1 kg/week trend continues inside block 2
+  assert.equal(at(projectLoads({ series: log(8, 8, 8), nextWeekKg: 10 }), 4), 10); // coach prescription wins
+  assert.equal(at(projectLoads({ series: log(8, 8, 8, 8, 8, 8, 8, 8, 8, 8), maxWeek: 12 }), 12), 7); // only week 11-12 left: 8 * 0.9 = 7.2 -> 7
+  assert.deepEqual(projectLoads({ series: log(0, 0, 0) }), []);   // bodyweight: nothing to project
+  assert.deepEqual(projectLoads({ series: [] }), []);
+  const assisted = projectLoads({ series: log(30, 25, 20), assisted: true });
+  assert.ok(at(assisted, 4) < 20);              // no +12.5% jump for assistance
+});
+
+test('exerciseInWeek follows the blocks, deload = block 2, taper = block 3', () => {
+  const d = buildData({ plan, templateIds, hevy: synthetic, drive: null, now: new Date('2026-09-16T10:00:00Z') });
+  assert.equal(exerciseInWeek(d, 3, 'chest_press'), true);
+  assert.equal(exerciseInWeek(d, 4, 'chest_press'), false);   // block 2 swaps it for the dumbbell bench
+  assert.equal(exerciseInWeek(d, 4, 'push_up'), true);
+  assert.equal(exerciseInWeek(d, 8, 'push_up'), true);        // deload = block 2's exercises
+  assert.equal(exerciseInWeek(d, 12, 'push_up'), false);      // taper = block 3's exercises
+  assert.equal(exerciseInWeek(d, 12, 'dip'), true);
+  assert.equal(exerciseInWeek(d, 99, 'dip'), false);
+});
+
+test('plannedReps: best target reps of the week, deload/taper borrow their block, non-rep schemes give null', () => {
+  const d = buildData({ plan, templateIds, hevy: synthetic, drive: null, now: new Date('2026-09-16T10:00:00Z') });
+  assert.equal(plannedReps(d, 3, 'lateral_raise'), 15);   // 4x12 in A, 3x15 in C
+  assert.equal(plannedReps(d, 8, 'lateral_raise'), plannedReps(d, 7, 'lateral_raise')); // deload = block 2
+  assert.equal(plannedReps(d, 4, 'push_up'), null);       // 3xmax
+  assert.equal(plannedReps(d, 3, 'plank'), null);         // timed
+  assert.equal(plannedReps(d, 3, 'bench_db'), null);      // not in block 1
+});
+
+test('projectLoads only projects weeks where the exercise is in the program', () => {
+  const series = [1, 2, 3].map((week) => ({ week, topKg: 10 }));
+  const out = projectLoads({ series, inProgram: (w) => w === 4 || w === 5 || w === 9 });
+  assert.deepEqual(out.map((p) => p.week), [4, 5, 9]);
+  assert.equal(out[0].kg, 11.5);                               // 10 * 1.125 = 11.25 -> 11.5
+  assert.equal(out[2].kg, 13);                                 // 11.5 held through the gap, * 1.125 at week 9
+  assert.deepEqual(projectLoads({ series, inProgram: () => false }), []); // chest press after block 1
+});
+
+test('projectLoads never assumes drops, and only returns weeks from fromWeek', () => {
+  const at = (arr, w) => arr.find((p) => p.week === w)?.kg;
+  const falling = projectLoads({ series: [{ week: 1, topKg: 12 }, { week: 2, topKg: 8 }, { week: 3, topKg: 8 }] });
+  assert.equal(at(falling, 5), at(falling, 4));                // first-week correction isn't a downward trend
+  assert.ok(falling.every((p) => p.kg > 0));
+  const full = projectLoads({ series: [1, 2, 3].map((week) => ({ week, topKg: 10 })) });
+  const later = projectLoads({ series: [1, 2, 3].map((week) => ({ week, topKg: 10 })), fromWeek: 6 });
+  assert.deepEqual(later.map((p) => p.week), [6, 7, 8, 9, 10, 11, 12]);
+  assert.deepEqual(later, full.filter((p) => p.week >= 6));    // same numbers, just trimmed
 });
 
 test('encryption round-trips and rejects a wrong passphrase', async () => {

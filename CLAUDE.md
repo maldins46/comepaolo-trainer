@@ -168,7 +168,10 @@ Views, in priority order:
    showing the current load. No sparklines or unexplained pills on the cards.
    Detail page: load and reps per session vs prescription, e1RM trend, block-transition
    markers, doubled-from-per-hand markers, the coach's `reason` per week, and the 2x2 /
-   held-for-N-weeks state as plain sentences.
+   held-for-N-weeks state as plain sentences. Both charts carry a dashed **estimate** to week 12
+   (`projectLoads` in `site/lib/progression.js`: own weekly gain, ~12.5% at block changes, deload = week 7,
+   taper -10%, only weeks where the exercise is in the program, never a drop); it is an estimate, not a
+   prescription, and the coach's `next` load anchors its first point when there is one.
 4. **Running**: pace (min/km) and distance (km) per week on one dual-axis chart — bars for
    pace (left axis), a line for distance (right axis), since both describe the same weekly
    run. A continuous dashed line marks the pre-break pace (60'/10km = 6.0'/km) across all 12

@@ -46,30 +46,3 @@ export function verticalLine({ x, color, label }) {
     },
   };
 }
-
-// Decorative markers only: a small tick + dot per decision, colored by action. The actual
-// `reason` text lives in an adjacent HTML table, not a hover tooltip (avoids synthetic-dataset
-// complexity for a personal, single-user tool).
-export function decisionMarker({ points, colorFor }) {
-  return {
-    id: 'decisionMarker',
-    afterDatasetsDraw(chart) {
-      const { ctx, chartArea, scales } = chart;
-      ctx.save();
-      for (const p of points) {
-        const px = scales.x.getPixelForValue(p.week + 0.5);
-        if (px < chartArea.left || px > chartArea.right) continue;
-        ctx.fillStyle = colorFor(p.action);
-        ctx.beginPath();
-        ctx.moveTo(px, chartArea.top);
-        ctx.lineTo(px, chartArea.top + 8);
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = colorFor(p.action);
-        ctx.stroke();
-        ctx.arc(px, chartArea.top + 8, 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
-    },
-  };
-}

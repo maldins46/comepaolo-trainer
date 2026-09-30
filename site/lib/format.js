@@ -45,6 +45,3 @@ export function actionBadgeClass(action) {
   if (action === 'reset' || action === 'transition') return 'warn';
   return 'muted';
 }
-
-// Same action->color mapping as actionBadgeClass, but as a theme() key for canvas drawing.
-export const actionColorKey = actionBadgeClass;

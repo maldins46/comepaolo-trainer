@@ -44,3 +44,24 @@ export function prescriptionTable(rows, exercises) {
     </tr>`).join('')}
   </tbody></table>`;
 }
+
+// The planned sessions a week draws from: deload reuses block 2's exercises, taper block 3's.
+function programFor(data, week) {
+  const planned = data.weeks[week - 1]?.planned;
+  if (!planned) return null;
+  return planned.rule ? (week === 8 ? data.weeks[6]?.planned : week === 12 ? data.weeks[8]?.planned : null) ?? null : planned;
+}
+
+export function exerciseInWeek(data, week, key) {
+  const src = programFor(data, week);
+  return !!src && ['A', 'B', 'C'].some((s) => (src[s] ?? []).some((r) => r.ex === key));
+}
+
+// Highest target rep count the exercise has that week (what sets the best e1RM), or null when it has
+// none to estimate from (time-based, "max reps", or above the 15 the formula is valid for).
+export function plannedReps(data, week, key) {
+  const src = programFor(data, week);
+  const reps = ['A', 'B', 'C'].flatMap((s) => (src?.[s] ?? []).filter((r) => r.ex === key))
+    .map((r) => r.scheme.reps).filter((v) => v != null && v <= 15);
+  return reps.length ? Math.max(...reps) : null;
+}

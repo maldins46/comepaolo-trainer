@@ -60,6 +60,7 @@ let currentCleanup = null;
 let updateTabArrows = () => {};
 let curIdx = 0;      // position of the current history entry within this app session
 let backTarget = null;
+const scrollByIdx = new Map();   // scroll position of each history entry, restored when coming back to it
 
 const SHELL_HTML = `
   <div class="top-strip">
@@ -145,6 +146,7 @@ export function mountApp(data) {
   nav.innerHTML = NAV.map((n) => `<a href="${n.hash}">${n.label}</a>`).join('');
   updateTabArrows = wireTabScroll();
 
+  history.scrollRestoration = 'manual';   // the router owns scroll position, see renderRoute
   history.replaceState({ idx: 0 }, '');
   document.getElementById('back-btn').addEventListener('click', () => {
     if (backTarget?.fixedBack) location.hash = backTarget.fixedBack;
@@ -165,7 +167,11 @@ function renderRoute() {
   const match = ROUTES.map((r) => ({ r, m: r.re.exec(hash) })).find((x) => x.m);
   if (!match) { location.hash = '#/'; return; }
 
-  if (history.state?.idx == null) {
+  // A new page starts at the top; going back/forward returns to where that page was left.
+  // (The content is swapped in place, so without this the old scroll position carries over.)
+  scrollByIdx.set(curIdx, window.scrollY);
+  const isNewEntry = history.state?.idx == null;
+  if (isNewEntry) {
     curIdx += 1;
     history.replaceState({ idx: curIdx }, '');
   } else {
@@ -178,6 +184,10 @@ function renderRoute() {
   const ctx = { data: DATA, workoutsById, navigate: (h) => { location.hash = h; } };
   renderHeader(match.r.header?.(ctx, params) ?? null);
   currentCleanup = match.r.view.render(view, ctx, params) ?? null;
+
+  const y = isNewEntry ? 0 : (scrollByIdx.get(curIdx) ?? 0);
+  window.scrollTo(0, y);
+  requestAnimationFrame(() => window.scrollTo(0, y));   // again once layout (charts) has settled
 }
 
 // Top-level pages show the tab bar; nested pages swap it for a back header.
