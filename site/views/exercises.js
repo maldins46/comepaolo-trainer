@@ -59,7 +59,7 @@ function muscleChart(canvas, data, t) {
       },
       plugins: {
         legend: { labels: { color: t.ink } },
-        ...chartTitle('Working sets so far vs plan'),
+        ...chartTitle(`Working sets, S1–S${data.cycle.currentWeek}: logged vs plan`),
         tooltip: {
           callbacks: {
             label: (c) => (c.datasetIndex === 0
@@ -90,8 +90,9 @@ export function render(container, ctx) {
     muscles, so they come first, and priority exercises lead each group. Tap one for its load history
     and the coach's decisions.</p>
     <div class="chart-wrap tall"><canvas id="muscle-chart"></canvas></div>
-    <p class="hint">Sets count every session planned up to the current week, so a muscle reads behind
-    until the week is finished.</p>
+    <p class="hint">Covers S1 to S${data.cycle.currentWeek}, the current week. The plan side includes all
+    of this week's sessions, not just those up to today, so a muscle reads behind until the week is
+    finished. Future weeks aren't counted.</p>
     <div id="groups">${groups.map((g) => `
       <h2>${esc(g.muscle)}</h2>
       <div class="cards">${g.keys.map((k) => exerciseCard(k, data.exercises[k], data.series[k])).join('')}</div>`).join('')}
