@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { cycleWeek, localDate, parseScheme, plannedSessions, normalizeBodyweight, buildData, parseOverrides, rirMidpoint, plannedRpeForWeek, plannedSetsForWeek } from '../scripts/lib/normalize.js';
+import { cycleWeek, localDate, parseScheme, plannedSessions, normalizeBodyweight, buildData, parseOverrides, rirMidpoint, plannedRpeForWeek, plannedSetsForWeek, normalizeRoutineNotes } from '../scripts/lib/normalize.js';
 import { encryptJson, decryptJson } from '../scripts/lib/crypto.js';
 
 const plan = JSON.parse(readFileSync('plan/plan.json', 'utf8'));
@@ -104,6 +104,23 @@ test('buildData: dumbbell doubling, runs, weeks, pain flag, unmapped', () => {
   assert.equal(d.weeks[1].painFlag, true);
   assert.equal(d.weeks[0].feedback[0].text, 'Spalla ok');
   assert.deepEqual(d.quality.unmappedExercises, ['ZZZ Something (Machine)']);
+});
+
+test('routine notes: per session + run, empty -> null, other titles ignored, none -> null', () => {
+  const rn = normalizeRoutineNotes([
+    { title: 'S04 A — Petto', notes: '  Blocco 2, settimana 4.  ' },
+    { title: 'S04 B — Gambe', notes: '' },
+    { title: 'S04 C — Schiena', description: 'Via description' },
+    { title: 'Domenica — Corsa 10 km', notes: 'Progressivo' },
+    { title: 'Gym day 1', notes: 'old template' },
+  ]);
+  assert.deepEqual(rn, { week: 4, A: 'Blocco 2, settimana 4.', B: null, C: 'Via description', run: 'Progressivo' });
+  assert.equal(normalizeRoutineNotes([{ title: 'Gym day 1', notes: 'x' }]), null);
+  assert.equal(normalizeRoutineNotes(undefined), null);
+  const d = buildData({ plan, templateIds, hevy: { ...synthetic, routines: [{ title: 'S02 A — x', notes: 'n' }] }, drive: null, now: new Date('2026-09-16T10:00:00Z') });
+  assert.equal(d.routineNotes.A, 'n');
+  assert.equal(d.quality.routinesWithNotes, 1);
+  assert.equal(buildData({ plan, templateIds, hevy: synthetic, drive: null, now: new Date('2026-09-16T10:00:00Z') }).routineNotes, null);
 });
 
 test('encryption round-trips and rejects a wrong passphrase', async () => {

@@ -120,9 +120,16 @@ nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--
 
 /* ---- generic building blocks ---- */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.card.planned { border-style: dashed; background: var(--surface-2); }
+.card .eyebrow { display: block; font: 600 .72rem var(--display); color: var(--muted); text-transform: uppercase; letter-spacing: .03em; margin: 0 0 2px; }
 .cards { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 12px 0; }
 @media (min-width: 700px) { .cards { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 980px) { .cards { grid-template-columns: repeat(3, 1fr); } }
+/* Overview "current week": always 4 tiles, so 4 / 2 / 1 columns, never 3 */
+.cards.quad { grid-template-columns: 1fr; }
+@media (min-width: 640px) { .cards.quad { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .cards.quad { grid-template-columns: repeat(4, 1fr); } }
+.card .desc { margin: 6px 0 8px; font-size: .85rem; line-height: 1.45; color: var(--ink); }
 
 .banner { border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; border: 1px solid var(--line); }
 .banner.info { background: var(--accent-bg); border-color: var(--accent); }

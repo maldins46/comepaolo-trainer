@@ -18,5 +18,8 @@ await mkdir('data', { recursive: true });
 await writeFile('data/data.json', JSON.stringify(data, null, 2));
 const q = data.quality;
 console.log(`data.json: week ${data.cycle.currentWeek}/12, ${data.workouts.length} workouts, ${Object.keys(data.series).length} exercises`);
+const rn = data.routineNotes;
+console.log(rn ? `routines: week ${rn.week}, ${q.routinesWithNotes}/4 with notes` : 'routines: none for a cycle week');
+if (rn && !q.routinesWithNotes) console.warn('no routine notes found: the Hevy API may not return them (see CLAUDE.md, routineNotes)');
 if (q.unmappedExercises.length) console.warn('unmapped exercises (add to plan/template-ids.json):\n  ' + q.unmappedExercises.join('\n  '));
 if (q.weeksMissingCoachData.length) console.warn(`weeks without coach JSON: ${q.weeksMissingCoachData.join(', ')}`);

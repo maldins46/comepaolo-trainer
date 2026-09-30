@@ -263,6 +263,25 @@ export function parseOverrides(doc) {
     });
 }
 
+// ---------- routine notes ----------
+
+// The coach's short description of each session, written on the Hevy routine. Hevy rewrites the
+// routines every week, so this is only valid for the week named in the routine titles.
+export function normalizeRoutineNotes(routines) {
+  const text = (r) => String(r.notes ?? r.description ?? '').trim() || null;
+  const out = { week: null, A: null, B: null, C: null, run: null };
+  for (const r of routines ?? []) {
+    const m = SESSION_RE.exec(r.title ?? '');
+    if (m) {
+      out.week = +m[1];
+      out[m[2]] = text(r);
+    } else if (/\b(corsa|running|run)\b/i.test(r.title ?? '')) {
+      out.run = text(r);
+    }
+  }
+  return out.week == null ? null : out;
+}
+
 // ---------- assemble ----------
 
 export function buildData({ plan, templateIds, hevy, drive, now = new Date() }) {
@@ -272,6 +291,7 @@ export function buildData({ plan, templateIds, hevy, drive, now = new Date() }) 
   const reports = parseReports(drive?.reports ?? []);
   const coach = parseWeekData(drive?.weekData ?? []);
   const overrides = parseOverrides(drive?.overrides);
+  const routineNotes = normalizeRoutineNotes(hevy.routines);
 
   const today = localDate(now.toISOString(), plan.cycle.timezone);
   const currentWeek = cycleWeek(today, plan.cycle.start);
@@ -341,8 +361,10 @@ export function buildData({ plan, templateIds, hevy, drive, now = new Date() }) 
     bodyweight,
     runs: workouts.filter((w) => w.kind === 'run').map((w) => ({ date: w.date, week: w.week, id: w.id, ...w.run })),
     overrides,
+    routineNotes,
     reports,
     quality: {
+      routinesWithNotes: routineNotes ? ['A', 'B', 'C', 'run'].filter((k) => routineNotes[k]).length : 0,
       unmappedExercises: unmapped,
       weeksMissingCoachData: weeks.filter((w) => w.state === 'done' && !w.coach).map((w) => w.week),
       bodyweightDays: bodyweight.days.length,

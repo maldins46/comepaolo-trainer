@@ -115,6 +115,8 @@ series     plan key -> [{ date, week, session, workoutId, topKg, minKg, reps[], 
              bestE1rm, dropped, doubled, prescribed|null, progression|null }]
 bodyweight { days[{date,kg,week}], weeks[{week,n,avg,delta,status}] }
 runs[]     { date, week, id, km, minutes, paceMinPerKm }
+routineNotes { week, A, B, C, run } | null   the coach's routine description from Hevy (Italian, verbatim);
+           only valid for that `week` (Hevy rewrites routines weekly), any entry can be null
 overrides[] { from|null, text, permanent }
 reports[]  all coach reports incl. pre-cycle
 quality    { unmappedExercises[], weeksMissingCoachData[], bodyweightDays }
