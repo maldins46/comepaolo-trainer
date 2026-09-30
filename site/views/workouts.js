@@ -48,7 +48,8 @@ export function render(container, ctx) {
 
   const totalVolume = Math.round(data.workouts.reduce((sum, w) =>
     sum + w.exercises.reduce((n, e) => n + e.summary.volumeKg, 0), 0));
-  const thisWeekSessions = data.weeks[cw - 1]?.gymDone ?? 0;
+  const thisWeek = data.weeks[cw - 1];
+  const thisWeekSessions = (thisWeek?.gymDone ?? 0) + (thisWeek?.run ? 1 : 0);
   const latest = rows[0];
 
   const byWeek = new Map();
@@ -63,7 +64,7 @@ export function render(container, ctx) {
     else Hevy recorded. Tap one for the full breakdown.</p>
     <div class="tiles">
       <div class="tile"><h3>Total workouts</h3><span class="big">${data.workouts.length}</span><p>logged this cycle</p></div>
-      <div class="tile"><h3>This week's sessions</h3><span class="big">${thisWeekSessions}/3</span><p>gym sessions</p></div>
+      <div class="tile"><h3>This week's sessions</h3><span class="big">${thisWeekSessions}/4</span><p>3 gym + the Sunday run</p></div>
       <div class="tile"><h3>Total volume</h3><span class="big">${totalVolume.toLocaleString('en-GB')}kg</span><p>across the cycle</p></div>
       <div class="tile"><h3>Latest session</h3><span class="big">${latest ? kindLabel(latest) : '—'}</span><p>${latest ? fmtDate(latest.date) : 'none logged yet'}</p></div>
     </div>

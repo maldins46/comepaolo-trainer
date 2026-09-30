@@ -41,11 +41,11 @@ const SHELL_HTML = `
     <span class="brand"><img class="brand-icon" src="icons/badge-64.png" alt="" width="28" height="28">Comepaolo Trainer</span>
     <div class="top-actions">
       <div class="theme-toggle" role="group" aria-label="Theme">
-        <button type="button" class="small" data-theme-btn="">Auto</button>
-        <button type="button" class="small" data-theme-btn="light">Light</button>
-        <button type="button" class="small" data-theme-btn="dark">Dark</button>
+        <button type="button" class="small" data-theme-btn="" aria-label="Auto theme" title="Auto">${icon('monitor', 'ico')}<span class="lbl">Auto</span></button>
+        <button type="button" class="small" data-theme-btn="light" aria-label="Light theme" title="Light">${icon('sun', 'ico')}<span class="lbl">Light</span></button>
+        <button type="button" class="small" data-theme-btn="dark" aria-label="Dark theme" title="Dark">${icon('moon', 'ico')}<span class="lbl">Dark</span></button>
       </div>
-      <button type="button" class="ghost small" id="lock-btn">${icon('lock')} Lock</button>
+      <button type="button" class="ghost small" id="lock-btn" aria-label="Lock" title="Lock">${icon('lock')}<span class="lbl">Lock</span></button>
     </div>
   </div>
   <div class="tabs-wrap">
@@ -87,7 +87,11 @@ function wireThemeToggle() {
   applyTheme(saved);
   for (const btn of document.querySelectorAll('[data-theme-btn]')) {
     btn.addEventListener('click', () => {
-      const value = btn.dataset.themeBtn;
+      // Phone layout shows only the active mode's button: tapping it cycles auto -> light -> dark.
+      const order = ['', 'light', 'dark'];
+      const value = matchMedia('(max-width: 600px)').matches
+        ? order[(order.indexOf(btn.dataset.themeBtn) + 1) % order.length]
+        : btn.dataset.themeBtn;
       applyTheme(value);
       try { value ? localStorage.setItem(THEME_KEY, value) : localStorage.removeItem(THEME_KEY); } catch {}
     });

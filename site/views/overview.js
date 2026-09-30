@@ -87,7 +87,7 @@ function renderHero(data) {
     </div>
     <div class="tiles">
       <div class="tile"><h3>Phase</h3><span class="big">Week ${cw} of 12</span><p>${esc(week?.phase ?? '—')}</p></div>
-      <div class="tile"><h3>This week</h3><span class="big">${week?.gymDone ?? 0}/3</span><p>${week?.run ? 'run logged' : 'run pending'}</p></div>
+      <div class="tile"><h3>This week</h3><span class="big">${(week?.gymDone ?? 0) + (week?.run ? 1 : 0)}/4</span><p>${week?.gymDone ?? 0}/3 gym · run ${week?.run ? 'logged' : 'pending'}</p></div>
       <div class="tile ${STATUS_TILE_CLASS[bw?.status] ?? ''}"><h3>Weight</h3><span class="big">${bw?.delta != null ? bw.delta.toFixed(2) + ' kg' : '—'}</span><p>${bw?.avg == null ? 'not enough data' : bw.status === 'ok' ? 'on track' : bw.status}</p></div>
       <div class="tile"><h3>Next up</h3><span class="big">${nextLabel}</span><p>${esc(nextSub)}</p></div>
       ${alertText ? `<div class="tile bad"><h3>Alert</h3><span class="big">⚠</span><p>${esc(alertText)}</p></div>` : ''}
