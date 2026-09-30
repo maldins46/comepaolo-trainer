@@ -104,6 +104,10 @@ nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--
 .tab-arrow:hover { color: var(--ink); }
 .tab-arrow[hidden] { display: none; }
 
+.hero-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.hero-head .hint { margin: 0; flex: 1 1 280px; }
+.tile-compact { flex: 0 0 auto; min-width: 130px; }
+
 .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 16px 0 4px; }
 .tile { background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; }
 .tile.bad { background: var(--bad-bg); }

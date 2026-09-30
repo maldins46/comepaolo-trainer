@@ -12,20 +12,20 @@ import { icon } from './lib/icons.js';
 const NAV = [
   { hash: '#/', label: 'Overview' },
   { hash: '#/workouts', label: 'Workouts' },
+  { hash: '#/running', label: 'Running' },
   { hash: '#/exercises', label: 'Exercises' },
   { hash: '#/weight', label: 'Weight' },
-  { hash: '#/running', label: 'Running' },
   { hash: '#/decisions', label: 'Decisions' },
 ];
 
 const ROUTES = [
   { re: /^#\/$/, view: Overview },
-  { re: /^#\/weight$/, view: Weight },
+  { re: /^#\/workouts$/, view: Workouts },
+  { re: /^#\/workouts\/([\w-]+)$/, view: WorkoutDetail, keys: ['id'] },
   { re: /^#\/running$/, view: Running },
   { re: /^#\/exercises$/, view: ExercisesList },
   { re: /^#\/exercises\/([\w:-]+)$/, view: ExerciseDetail, keys: ['key'] },
-  { re: /^#\/workouts$/, view: Workouts },
-  { re: /^#\/workouts\/([\w-]+)$/, view: WorkoutDetail, keys: ['id'] },
+  { re: /^#\/weight$/, view: Weight },
   { re: /^#\/week\/(\d+)$/, view: Week, keys: ['n'] },
   { re: /^#\/decisions$/, view: Decisions },
 ];

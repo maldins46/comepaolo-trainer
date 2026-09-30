@@ -1,5 +1,9 @@
 import { weekAxis, chartDefaults, makeChart, theme, axisTitle, chartTitle } from '../lib/charts.js';
+import { verticalBand } from '../lib/chartAnnotations.js';
 import { fmtDate } from '../lib/format.js';
+
+const TARGET_PACE = 5.2;
+const TARGET_KM = 10;
 
 function runRow(r) {
   return `
@@ -31,7 +35,7 @@ export function render(container, ctx) {
     <h1>Running</h1>
     <p class="hint">Pace (minutes per km) is already distance-independent, so it's directly comparable
     week to week even though the Sunday run's distance changes across the cycle (7-8km early on,
-    6-7km during the deload) — shown here together, pace as bars, distance as the line.</p>
+    6-7km during the deload) — shown here together, distance as bars, pace as the line.</p>
     <div class="tiles">
       <div class="tile"><h3>Latest pace</h3><span class="big">${latest ? latest.run.paceMinPerKm.toFixed(2) + '/km' : '—'}</span><p>${latest ? 'S' + latest.week : 'no run logged yet'}</p></div>
       <div class="tile"><h3>Latest distance</h3><span class="big">${latest ? latest.run.km + 'km' : '—'}</span><p>${latest ? 'S' + latest.week : 'no run logged yet'}</p></div>
@@ -55,25 +59,38 @@ export function render(container, ctx) {
     if (a) { e.preventDefault(); navigate(`#/workouts/${a.dataset.id}`); }
   });
 
+  const cw = data.cycle.currentWeek;
   const actual = data.weeks.map((w) => ({ x: w.week, y: w.run ? +w.run.paceMinPerKm.toFixed(2) : null }));
   const distance = data.weeks.map((w) => ({ x: w.week, y: w.run?.km ?? null }));
-  const goalPace = [{ x: 1, y: +beforeBreakPace.toFixed(2) }, { x: maxWeek, y: +beforeBreakPace.toFixed(2) }];
+
+  const latestPace = latest ? +latest.run.paceMinPerKm.toFixed(2) : null;
+  const predictedPace = latest && latest.week < maxWeek
+    ? Array.from({ length: maxWeek - latest.week + 1 }, (_, i) => {
+        const week = latest.week + i;
+        const frac = i / (maxWeek - latest.week);
+        return { x: week, y: +(latestPace + (TARGET_PACE - latestPace) * frac).toFixed(2) };
+      })
+    : [];
+  const predictedDistance = latest && latest.week < maxWeek
+    ? Array.from({ length: maxWeek - latest.week }, (_, i) => ({ x: latest.week + 1 + i, y: TARGET_KM }))
+    : [];
 
   const chart = makeChart(document.getElementById('run-chart'), {
     type: 'bar',
     data: {
       datasets: [
-        { type: 'bar', label: 'Actual pace', data: actual, backgroundColor: t.accent, borderRadius: 3, yAxisID: 'y', unit: '/km', order: 0 },
-        { type: 'line', label: 'Distance', data: distance, borderColor: t.warn, backgroundColor: t.warn, borderWidth: 3, pointRadius: 4, spanGaps: false, yAxisID: 'y1', unit: 'km', order: 1 },
-        { type: 'line', label: 'Pre-break pace (goal)', data: goalPace, borderColor: t.done, borderDash: [5, 4], pointRadius: 0, yAxisID: 'y', unit: '/km', order: 2 },
+        { type: 'bar', label: 'Distance', data: distance, backgroundColor: t.accent + '99', yAxisID: 'y1', unit: 'km', order: 0, stack: 'distance' },
+        { type: 'bar', label: 'Predicted distance', data: predictedDistance, backgroundColor: t.accent + '40', borderColor: t.accent, borderWidth: 1, borderDash: [6, 4], yAxisID: 'y1', unit: 'km', order: 1, stack: 'distance' },
+        { type: 'line', label: 'Actual pace', data: actual, borderColor: t.done, backgroundColor: t.done, borderWidth: 3, pointRadius: 4, spanGaps: false, yAxisID: 'y', unit: '/km', order: 2 },
+        { type: 'line', label: 'Predicted pace', data: predictedPace, borderColor: t.done, backgroundColor: t.done, borderDash: [6, 4], pointRadius: 4, spanGaps: true, yAxisID: 'y', unit: '/km', order: 3 },
       ],
     },
     options: {
       ...chartDefaults(),
       scales: {
-        x: weekAxis(maxWeek, { title: 'Week' }),
-        y: { position: 'left', reverse: false, beginAtZero: true, suggestedMax: 12, grid: { color: t.line }, ticks: { color: t.muted }, title: axisTitle('Pace (min/km)') },
-        y1: { position: 'right', beginAtZero: true, suggestedMax: 12, grid: { drawOnChartArea: false }, ticks: { color: t.muted }, title: axisTitle('Distance (km)') },
+        x: { ...weekAxis(maxWeek, { title: 'Week' }), stacked: true },
+        y: { position: 'left', reverse: false, beginAtZero: true, suggestedMax: 9, grid: { color: t.line }, ticks: { color: t.muted }, title: axisTitle('Pace (min/km)') },
+        y1: { position: 'right', beginAtZero: true, suggestedMax: 12, stacked: true, grid: { drawOnChartArea: false }, ticks: { color: t.muted }, title: axisTitle('Distance (km)') },
       },
       plugins: {
         legend: { labels: { color: t.ink } },
@@ -81,6 +98,7 @@ export function render(container, ctx) {
         tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y}${c.dataset.unit}` } },
       },
     },
+    plugins: [verticalBand({ x: cw, fill: t.accentBg, labelColor: t.accent, label: 'you are here' })],
   });
 
   return () => chart.destroy();

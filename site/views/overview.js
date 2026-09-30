@@ -1,6 +1,4 @@
 import { esc, fmtKg } from '../lib/format.js';
-import { weekAxis, chartDefaults, makeChart, theme, axisTitle, chartTitle } from '../lib/charts.js';
-import { verticalBand } from '../lib/chartAnnotations.js';
 import { icon } from '../lib/icons.js';
 
 function nextAction(week, cycle) {
@@ -58,7 +56,7 @@ function weekBadgeClass(w) {
 
 const STATUS_TILE_CLASS = { ok: 'status-ok', slow: 'status-low', fast: 'status-high', halt: 'status-high' };
 
-function renderHero(data, latestCoachWeek) {
+function renderHero(data) {
   const cw = data.cycle.currentWeek;
   const week = data.weeks[cw - 1];
   const bw = week?.bodyweight;
@@ -78,10 +76,12 @@ function renderHero(data, latestCoachWeek) {
     : (week?.painFlag || week?.coach?.painFlags?.length) ? 'Pain flagged this week — see details below.' : null;
 
   return `
-    <p class="hint">Comepaolo Training tracks a 12-week body-recomposition cycle coached by Claude every
-    Saturday, who reads Hevy, decides next week's loads and sends a report. This page shows where the
-    week stands right now; the tabs above dig into weight, exercises, running and the coach's decisions.</p>
-    <p class="muted" style="margin:0">Updated ${new Date(data.generatedAt).toLocaleString('en-GB')}</p>
+    <div class="hero-head">
+      <p class="hint">Comepaolo Training tracks a 12-week body-recomposition cycle coached by Claude every
+      Saturday, who reads Hevy, decides next week's loads and sends a report. This page shows where the
+      week stands right now; the tabs above dig into weight, exercises, running and the coach's decisions.</p>
+      <div class="tile tile-compact"><h3>Updated</h3><p>${new Date(data.generatedAt).toLocaleString('en-GB')}</p></div>
+    </div>
     <div class="tiles">
       <div class="tile"><h3>Phase</h3><span class="big">Week ${cw} of 12</span><p>${esc(week?.phase ?? '—')}</p></div>
       <div class="tile"><h3>This week</h3><span class="big">${week?.gymDone ?? 0}/3</span><p>${week?.run ? 'run logged' : 'run pending'}</p></div>
@@ -89,13 +89,6 @@ function renderHero(data, latestCoachWeek) {
       <div class="tile"><h3>Next up</h3><span class="big">${nextLabel}</span><p>${esc(nextSub)}</p></div>
       ${alertText ? `<div class="tile bad"><h3>Alert</h3><span class="big">⚠</span><p>${esc(alertText)}</p></div>` : ''}
     </div>
-    ${latestCoachWeek ? `<p style="margin:8px 0 0"><strong>Latest verdict (week ${latestCoachWeek.week}):</strong> ${esc(latestCoachWeek.coach.verdict ?? '—')}</p>` : ''}
-    <h2>Effort &amp; volume</h2>
-    <p class="hint">Both come from the plan itself, not from what was actually lifted, so they show the
-    intended shape of the cycle: RPE (line) is planned intensity, working sets (bars) is planned volume,
-    for the same week. Weeks 8 and 12 dip on purpose (deload and taper), not because of a drop in
-    performance.</p>
-    <div class="chart-wrap tall"><canvas id="effort-volume"></canvas></div>
   `;
 }
 
@@ -125,12 +118,12 @@ function renderStrip(data, navigate) {
 
 export function render(container, ctx) {
   const { data, navigate } = ctx;
-  const charts = [];
   const latestCoachWeek = [...data.weeks].reverse().find((w) => w.coach);
 
   container.innerHTML = `
     <h1>Overview</h1>
-    ${renderHero(data, latestCoachWeek)}
+    ${renderHero(data)}
+    ${latestCoachWeek ? `<h2>Latest verdict — week ${latestCoachWeek.week}</h2><p class="hint">${esc(latestCoachWeek.coach.verdict ?? '—')}</p>` : ''}
     <h2>12-week strip</h2>
     <p class="hint">Each column is one week. The three small icons show whether Monday, Wednesday and
     Friday's session was logged; the last icon shows Sunday's run. Weeks 8 and 12 are marked — lighter
@@ -149,43 +142,4 @@ export function render(container, ctx) {
   `;
 
   document.getElementById('strip').replaceWith(renderStrip(data, navigate));
-
-  const cw = data.cycle.currentWeek;
-  const weeks = data.weeks.map((w) => w.week);
-  const t = theme();
-
-  const effortVolume = makeChart(document.getElementById('effort-volume'), {
-    type: 'bar',
-    data: {
-      labels: weeks,
-      datasets: [
-        {
-          type: 'bar', label: 'Planned sets', data: data.weeks.map((w) => ({ x: w.week, y: w.plannedSets })),
-          backgroundColor: t.accent + '99', yAxisID: 'y', unit: ' sets', order: 0,
-        },
-        {
-          type: 'line', label: 'Planned RPE', data: data.weeks.map((w) => ({ x: w.week, y: w.plannedRpe })),
-          borderColor: t.done, backgroundColor: t.done, pointRadius: 3, tension: 0, yAxisID: 'y1', unit: ' RPE', order: 1,
-          segment: { borderDash: (c) => (c.p1DataIndex + 1 > cw ? [6, 4] : undefined) },
-        },
-      ],
-    },
-    options: {
-      ...chartDefaults(),
-      scales: {
-        x: weekAxis(12, { title: 'Week' }),
-        y: { position: 'left', beginAtZero: true, suggestedMax: 150, grid: { color: t.line }, ticks: { color: t.muted }, title: axisTitle('Working sets') },
-        y1: { position: 'right', min: 0, max: 10, grid: { drawOnChartArea: false }, ticks: { color: t.muted }, title: axisTitle('RPE (0–10, 10 = failure)') },
-      },
-      plugins: {
-        legend: { labels: { color: t.ink } },
-        ...chartTitle('Planned effort & volume by week'),
-        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y}${c.dataset.unit}` } },
-      },
-    },
-    plugins: [verticalBand({ x: cw, fill: t.accentBg, labelColor: t.accent, label: 'you are here' })],
-  });
-
-  charts.push(effortVolume);
-  return () => charts.forEach((c) => c.destroy());
 }
